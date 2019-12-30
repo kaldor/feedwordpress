@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: FeedWordPress
+Plugin Name: FeedWordPress (Pugpig fork)
 Plugin URI: http://feedwordpress.radgeek.com/
 Description: simple and flexible Atom/RSS syndication for WordPress
 Version: 2018.0117
