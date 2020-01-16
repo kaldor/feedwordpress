@@ -680,7 +680,9 @@ class MagpieFromSimplePie {
 		endif;
 
 		// Now put the identifier into dc:subject
-		$dest[$dc_id] = $source[$cat_id];
+		$dest[$dc_id] = isset($source[$cat_id])
+			? $source[$cat_id]
+			: null; // Avoid PHP notice nastygrams - the source key is probably missing because was a self-closing or empty node
 	} /* MagpieFromSimplePie::normalize_category */
     
 	/**
