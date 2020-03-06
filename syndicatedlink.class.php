@@ -215,27 +215,12 @@ class SyndicatedLink {
 				endif;
 			endif;
 
+			$this->update_setting('link/feed_type', $this->simplepie->get_type());
+
 			$this->merge_settings($channel, 'feed/');
 
 			$this->update_setting('update/last', time());
-			list($ttl, $xml) = $this->ttl(/*return element=*/ true);
-
-			if (!is_null($ttl)) :
-				$this->update_setting('update/ttl', $ttl);
-				$this->update_setting('update/xml', $xml);
-				$this->update_setting('update/timed', 'feed');
-			else :
-				$ttl = $this->automatic_ttl();
-				$this->update_setting('update/ttl', $ttl);
-				$this->update_setting('update/xml', NULL);
-				$this->update_setting('update/timed', 'automatically');
-			endif;
-			$this->update_setting('update/fudge', rand(0, ($ttl/3))*60);
-			$this->update_setting('update/ttl', apply_filters(
-				'syndicated_feed_ttl',
-				$this->setting('update/ttl'),
-				$this
-			));
+			$this->do_update_ttl();
 
 			if (!$this->setting('update/hold') != 'ping') :
 				$this->update_setting('update/hold', 'scheduled');
@@ -369,6 +354,30 @@ class SyndicatedLink {
 		return $new_count;
 	} /* SyndicatedLink::poll() */
 
+	public function do_update_ttl () {
+		list($ttl, $xml) = $this->ttl(/*return element=*/ true);
+
+		if (!is_null($ttl)) :
+			$this->update_setting('update/ttl', $ttl);
+			$this->update_setting('update/xml', $xml);
+			$this->update_setting('update/timed', 'feed');
+		else :
+			$ttl = $this->automatic_ttl();
+			$this->update_setting('update/ttl', $ttl);
+			$this->update_setting('update/xml', NULL);
+			$this->update_setting('update/timed', 'automatically');
+		endif;
+
+		$this->update_setting('update/fudge', rand(0, ($ttl/3))*60);
+
+		$this->update_setting('update/ttl', apply_filters(
+			'syndicated_feed_ttl',
+			$this->setting('update/ttl'),
+			$this
+		));
+
+	} /* SyndicatedLink::do_update_ttl () */
+	
 	public function process_retirements ($delta) {
 		global $post;
 
@@ -745,6 +754,42 @@ class SyndicatedLink {
 		return ('complete'==$this->setting('update_incremental', 'update_incremental', 'incremental'));
 	} /* SyndicatedLink::is_non_incremental () */
 
+	public function get_feed_type () {
+		$type_code = $this->setting('link/feed_type');
+		
+		// list derived from: <http://simplepie.org/api/class-SimplePie.html>, retrieved 2020/01/18
+		$bitmasks = array(
+			SIMPLEPIE_TYPE_RSS_090 => 'RSS 0.90',
+			SIMPLEPIE_TYPE_RSS_091_NETSCAPE => 'RSS 0.91 (Netscape)',
+			SIMPLEPIE_TYPE_RSS_091_USERLAND => 'RSS 0.91 (Userland)',
+			SIMPLEPIE_TYPE_RSS_091 => 'RSS 0.91',
+			SIMPLEPIE_TYPE_RSS_092 => 'RSS 0.92',
+			SIMPLEPIE_TYPE_RSS_093 => 'RSS 0.93',
+			SIMPLEPIE_TYPE_RSS_094 => 'RSS 0.94',
+			SIMPLEPIE_TYPE_RSS_10 => 'RSS 1.0',
+			SIMPLEPIE_TYPE_RSS_20 => 'RSS 2.0.x',
+			SIMPLEPIE_TYPE_RSS_RDF => 'RDF-based RSS',
+			SIMPLEPIE_TYPE_RSS_SYNDICATION => 'Non-RDF-based RSS',
+			SIMPLEPIE_TYPE_RSS_ALL => 'Any version of RSS',
+			SIMPLEPIE_TYPE_ATOM_03 => 'Atom 0.3',
+			SIMPLEPIE_TYPE_ATOM_10 => 'Atom 1.0',
+			SIMPLEPIE_TYPE_ATOM_ALL => 'Atom (any version)',
+			SIMPLEPIE_TYPE_ALL => 'Supported Feed (unspecified format)',
+		);
+
+		$type = "Unknown or unsupported format";
+		foreach ($bitmasks as $format_flag => $format_string) :
+			if (is_numeric($format_flag)) : // Guard against failure of constants to be defined.
+				if ($type_code & $format_flag) :
+					$type = $format_string;
+					break; // foreach
+				endif;
+			endif;
+		endforeach;
+		
+		return $type;
+	} /* SyndicatedLink::get_feed_type () */
+	
 	public function uri ($params = array()) {
 		$params = wp_parse_args($params, array(
 		'add_params' => false,
@@ -993,8 +1038,16 @@ class SyndicatedLink {
 			else : $freq = 1;
 			endif;
 
+			// normalize the period name...
+			$period = strtolower(trim($period));
+
+			// do we recognize the alphanumeric period name? if not, then guess
+			// a responsible default, e.g. roughly hourly
+			$mins = (isset($period_minutes[$period]) ? $period_minutes[$period] : 67);
+			
 			$xml = 'sy:updateFrequency';
-			$ret = (int) ($period_minutes[$period] / $freq);
+			$ret = (int) ($mins / $freq);
+
 		else :
 			$xml = NULL;
 			$ret = NULL;

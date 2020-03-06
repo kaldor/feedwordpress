@@ -3,8 +3,8 @@ Contributors: C. Johnson
 Donate link: http://feedwordpress.radgeek.com/donate/
 Tags: syndication, aggregation, feed, atom, rss
 Requires at least: 4.5
-Tested up to: 4.8.2
-Stable tag: 2017.1020
+Tested up to: 5.3.2
+Stable tag: 2020.0118
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -64,6 +64,16 @@ FeedWordPress has many options which can be accessed through the WordPress Dashb
   [FeedWordPress project homepage]: http://feedwordpress.radgeek.com/
 
 == Changelog ==
+
+= 2020.0118 =
+
+*	WORDPRESS COMPATIBILITY TESTING. It's been some time since a public release of FeedWordPress; so I have tested the plugin functionality with recent versions of WordPress and incorporated a number of PHP 7-compatibility related tweaks.
+
+*	FEED PARSING FAULT TOLERANCE. If FeedWordPress fails to parse a feed using normal XML functions, it will attempt to convert any named entities that may be causing a problem, and then try to parse again. Props to @inanimatt for utility functions that help make the code go.
+
+*	PAUSING UPDATES. In Syndication > Feeds & Updates, you can now instruct FeedWordPress to temporarily pause or resume updating feeds -- whatever update method you are using, you can put new updates on hold for a while so that you can fiddle with setings, run tests, or do whatever you need to do before allowing updates to resume.
+ 
+*	CODE MODERNIZATION, PHP 7.x COMPATIBILITY AND CLEANUP AND REORGANIZATION. I have been dusting out nooks and crannies in the code and hiving more functionality off into discrete modules. A number of FeedWordPress users have also offered pull requests to eliminate bothersome PHP notices and warnings related to PHP 7.x compatibility -- in particular removing uses of deprecated `each()` functions, and avoiding use of `count()` on null values -- which I have rolled into the main branch release. Props to @manzoorwanijk, @tristanleboss, @martinburchell and @oppiansteve
 
 = 2017.1020 =
 
