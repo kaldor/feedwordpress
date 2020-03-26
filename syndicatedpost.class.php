@@ -131,7 +131,8 @@ class SyndicatedPost {
 			$excerpt = apply_filters('syndicated_item_excerpt', $this->excerpt(), $this);
 
 			if (!empty($excerpt)):
-				$this->post['post_excerpt'] = $excerpt;
+                // Wordpress post_excerpt needs to be less than 65534 characters
+                $this->post['post_excerpt'] = substr($excerpt, 0, 65534);
 			endif;
 
 			// Dealing with timestamps in WordPress is so fucking fucked.
