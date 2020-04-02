@@ -1407,10 +1407,10 @@ for a production server.</p>
 	public function redirect_retired () {
 		global $wp_query;
 		if (is_singular()) :
-			if (
+			if (isset($wp_query->post->post_status) && (
 				'fwpretired'==$wp_query->post->post_status
 				or 'fwpzapped'==$wp_query->post->post_status
-			) :
+			)) :
 				do_action('feedwordpress_redirect_retired', $wp_query->post);
 
 				if (!($template = get_404_template())) :
