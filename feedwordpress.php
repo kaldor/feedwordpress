@@ -1574,7 +1574,7 @@ for a production server.</p>
 
 			$this->update($this->update_requested_url());
 
-			if (FEEDWORDPRESS_DEBUG and count($wpdb->queries) > 0) :
+			if (FEEDWORDPRESS_DEBUG and is_countable($wpdb->queries) and count($wpdb->queries) > 0) :
 				$mysqlTime = 0.0;
 				$byTime = array();
 				foreach ($wpdb->queries as $query) :
