@@ -2247,10 +2247,12 @@ EOMAIL;
 
 	static function log_prefix ($date = false) {
 		$home = get_bloginfo('url');
-		$prefix = '['.feedwordpress_display_url($home).'] [feedwordpress] ';
+		$pid = getmypid();
+		$prefix = '['.feedwordpress_display_url($home).'] [feedwordpress] [' . $pid . '] ';
 		if ($date) :
 			$prefix = "[".date('Y-m-d H:i:s')."]".$prefix;
 		endif;
+
 		return $prefix;
 	} /* FeedWordPress::log_prefix () */
 

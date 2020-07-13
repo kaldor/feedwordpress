@@ -792,35 +792,48 @@ class SyndicatedPost {
 	public function get_terms_from_settings () {
 		// Categories: start with default categories, if any.
 		$cats = array();
+
+		$log = [];
+
 		if ('no' != $this->link->setting('add/category', NULL, 'yes')) :
+			$log[] = 'adding categories';
 			$fc = get_option("feedwordpress_syndication_cats");
 			if ($fc) :
 				$cats = array_merge($cats, explode("\n", $fc));
+				$log[] = "found add categories [${fc}]";
 			endif;
 		endif;
 
 		$fc = $this->link->setting('cats',NULL, array());
 		if (is_array($fc)) :
 			$cats = array_merge($cats, $fc);
+			$log[] = 'found categories '.implode(', ', $fc);
 		endif;
 		$preset_terms['category'] = $cats;
 
 		// Tags: start with default tags, if any
 		$tags = array();
 		if ('no' != $this->link->setting('add/post_tag', NULL, 'yes')) :
+			$log[] = "adding post_tags";
 			$ft = get_option("feedwordpress_syndication_tags", NULL);
+			$log[] = "found add post_tags $ft";
 			$tags = (is_null($ft) ? array() : explode(FEEDWORDPRESS_CAT_SEPARATOR, $ft));
 		endif;
 
 		$ft = $this->link->setting('tags', NULL, array());
 		if (is_array($ft)) :
 			$tags = array_merge($tags, $ft);
+			$log[] = "found post_tags ".implode(', ', $ft);
 		endif;
 		$preset_terms['post_tag'] = $tags;
 
 		$taxonomies = $this->link->taxonomies();
+		$log[] = "found taxonomies ".implode(', ', $taxonomies);
+
 		$feedTerms = $this->link->setting('terms', NULL, array());
+		$log[] = "found feed terms ".print_r($feedTerms, true);
 		$globalTerms = get_option('feedwordpress_syndication_terms', array());
+		$log[] = "found global terms ".print_r($globalTerms, true);
 		$specials = array('category' => 'cats', 'post_tag' => 'tags');
 
 		foreach ($taxonomies as $tax) :
@@ -831,20 +844,31 @@ class SyndicatedPost {
 
 				// See if we should get the globals
 				if ('no' != $this->link->setting("add/$tax", NULL, 'yes')) :
+					$log[] = "adding ${tax}";
 					if (isset($globalTerms[$tax])) :
 						$terms = $globalTerms[$tax];
+						$log[] = "found ${tax} terms ".implode(', ', $terms);
 					endif;
+				else:
+					$log[] = "NOT adding ${tax}";
 				endif;
 
 				// Now merge in the locals
 				if (isset($feedTerms[$tax])) :
-					$terms = array_merge($terms, $feedTerms[$tax]);
+					$taxLocalTerms = $feedTerms[$tax];
+					$log[] = "have local terms for ${tax}: ".print_r($taxLocalTerms, true);
+					$terms = array_merge($terms, $taxLocalTerms);
 				endif;
 
 				// That's all, folks.
 				$preset_terms[$tax] = $terms;
 			endif;
 		endforeach;
+
+		FeedWordPress::diagnostic(
+			'syndicated_posts:categories',
+			implode('. ', $log)
+		);
 		
 		return $preset_terms;
 	} /* SyndicatedPost::get_terms_from_settings () */
