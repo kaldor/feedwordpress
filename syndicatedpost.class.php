@@ -1354,10 +1354,10 @@ class SyndicatedPost {
 
 					// We want this to keep a running list of all the
 					// processed update hashes.
-					$this->post['meta']['syndication_item_hash'] = array_merge(
+					$this->post['meta']['syndication_item_hash'] = array_unique(array_merge(
 						$this->stored_hashes(),
 						array($this->update_hash())
-					);
+					));
 				else :
 					FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is a duplicate of an existing post.');
 					$this->_freshness = 0; // Same old, same old
