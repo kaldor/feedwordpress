@@ -3,7 +3,7 @@
 Plugin Name: FeedWordPress (Pugpig fork)
 Plugin URI: http://feedwordpress.radgeek.com/
 Description: simple and flexible Atom/RSS syndication for WordPress
-Version: 2020.0201
+Version: 2020.0818
 Author: C. Johnson
 Author URI: https://feedwordpress.radgeek.com/contact/
 License: GPL
@@ -11,7 +11,7 @@ License: GPL
 
 /**
  * @package FeedWordPress
- * @version 2020.0201
+ * @version 2020.0818
  */
 
 # This plugin uses code derived from:
@@ -30,7 +30,7 @@ License: GPL
 ## CONSTANTS & DEFAULTS ############################################################
 ####################################################################################
 
-define ('FEEDWORDPRESS_VERSION', '2020.0201');
+define ('FEEDWORDPRESS_VERSION', '2020.0818');
 define ('FEEDWORDPRESS_AUTHOR_CONTACT', 'http://feedwordpress.radgeek.com/contact');
 
 if (!defined('FEEDWORDPRESS_BLEG')) :
@@ -138,13 +138,13 @@ require_once("${dir}/compatability.php"); // Legacy API
 require_once("${dir}/syndicatedpost.class.php");
 require_once("${dir}/syndicatedlink.class.php");
 require_once("${dir}/feedwordpresshtml.class.php");
-require_once("${dir}/feedwordpress-content-type-sniffer.class.php");
 require_once("${dir}/inspectpostmeta.class.php");
 require_once("${dir}/syndicationdataqueries.class.php");
-require_once("${dir}/feedwordpie.class.php");
-require_once("${dir}/feedwordpie_item.class.php");
-require_once("${dir}/feedwordpress_file.class.php");
-require_once("${dir}/feedwordpress_parser.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie_item.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie_file.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie_parser.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie_content_type_sniffer.class.php");
 require_once("${dir}/feedwordpressrpc.class.php");
 require_once("${dir}/feedwordpresshttpauthenticator.class.php");
 require_once("${dir}/feedwordpresslocalpost.class.php");
@@ -1939,10 +1939,10 @@ for a production server.</p>
 
 		$pie_class = apply_filters('feedwordpress_simplepie_class', 'FeedWordPie');
 		$cache_class = apply_filters('feedwordpress_cache_class', 'WP_Feed_Cache');
-		$file_class = apply_filters('feedwordpress_file_class', 'FeedWordPress_File');
-		$parser_class = apply_filters('feedwordpress_parser_class', 'FeedWordPress_Parser');
+		$file_class = apply_filters('feedwordpress_file_class', 'FeedWordPie_File');
+		$parser_class = apply_filters('feedwordpress_parser_class', 'FeedWordPie_Parser');
 		$item_class = apply_filters('feedwordpress_item_class', 'FeedWordPie_Item');
-		$sniffer_class = apply_filters('feedwordpress_sniffer_class', 'FeedWordPress_Content_Type_Sniffer');
+		$sniffer_class = apply_filters('feedwordpress_sniffer_class', 'FeedWordPie_Content_Type_Sniffer');
 
 		$feed = new $pie_class;
 		$feed->set_feed_url($url);
