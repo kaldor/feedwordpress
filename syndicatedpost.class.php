@@ -1287,7 +1287,7 @@ class SyndicatedPost {
 
 				if ($updated) {
 					// This filter allows you to compare the old and the new post an reject and update for any reason.
-					$rejection_reason = apply_filters('syndicated_item_reject_update', $this->item, $old_post);
+					$rejection_reason = apply_filters('syndicated_item_reject_update', false, $this->item, $old_post);
 					if ($rejection_reason) {
 						FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" rejection by syndicated_item_reject_update: ' . $rejection_reason);
 						$updated = false;
