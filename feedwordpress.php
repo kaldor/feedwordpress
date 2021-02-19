@@ -3,7 +3,7 @@
 Plugin Name: FeedWordPress (Pugpig fork)
 Plugin URI: http://feedwordpress.radgeek.com/
 Description: simple and flexible Atom/RSS syndication for WordPress
-Version: 2020.0818
+Version: 2021.0118
 Author: C. Johnson
 Author URI: https://feedwordpress.radgeek.com/contact/
 License: GPL
@@ -96,8 +96,6 @@ endif;
 // Dependencies: modules packaged with WordPress core
 $wpCoreDependencies = array(
 "class:SimplePie" => "class-simplepie",
-"class:WP_Feed_Cache" => "class-wp-feed-cache",
-"class:WP_Feed_Cache_Transient" => "class-wp-feed-cache-transient",
 "class:WP_SimplePie_File" => "class-wp-simplepie-file",
 "class:WP_SimplePie_Sanitize_KSES" => "class-wp-simplepie-sanitize-kses",
 "function:wp_insert_user" => "registration",
@@ -141,6 +139,7 @@ require_once("${dir}/feedwordpresshtml.class.php");
 require_once("${dir}/inspectpostmeta.class.php");
 require_once("${dir}/syndicationdataqueries.class.php");
 require_once("${dir}/extend/SimplePie/feedwordpie.class.php");
+require_once("${dir}/extend/SimplePie/feedwordpie_cache.class.php");
 require_once("${dir}/extend/SimplePie/feedwordpie_item.class.php");
 require_once("${dir}/extend/SimplePie/feedwordpie_file.class.php");
 require_once("${dir}/extend/SimplePie/feedwordpie_parser.class.php");
@@ -650,7 +649,7 @@ class FeedWordPress {
 			$menu_cap,
 			$syndicationMenu,
 			NULL,
-			plugins_url( '/'.FeedWordPress::path('feedwordpress-tiny.png') )
+			$this->plugin_dir_url( 'assets/images/feedwordpress-tiny.png' )
 		);
 
 		do_action('feedwordpress_admin_menu_pre_feeds', $menu_cap, $settings_cap);
@@ -708,17 +707,8 @@ class FeedWordPress {
 		else :
 			$feedwordpress_debug = get_option('feedwordpress_debug');
 		endif;
-		if ($feedwordpress_debug==='yes') :
-?>
-<div class="error">
-<p><strong>FeedWordPress warning.</strong> Debugging mode is <strong>ON</strong>.
-While it remains on, FeedWordPress displays many diagnostic error messages,
-warnings, and notices that are ordinarily suppressed, and also turns off all
-caching of feeds. Use with caution: this setting is absolutely inappropriate
-for a production server.</p>
-</div>
-<?php
-		endif;
+
+		FeedWordPressSettingsUI::get_template_part('notice-debug-mode', $feedwordpress_debug, 'html');
 	} /* function FeedWordPress::check_debug () */
 
 	/**
@@ -1216,12 +1206,11 @@ for a production server.</p>
 	} /* FeedWordPress::feedwordpress_cleanup () */
 	
 	public function init () {
-		global $fwp_path;
 
 		// If this is a FeedWordPress admin page, queue up scripts for AJAX
 		// functions that FWP uses. If it is a display page or a non-FWP admin
 		// page, don't.
-		wp_register_style('feedwordpress-elements', plugins_url( '/'.$fwp_path.'/feedwordpress-elements.css') );
+		wp_register_style('feedwordpress-elements', $this->plugin_dir_url( 'assets/css/feedwordpress-elements.css') );
 		if (FeedWordPressSettingsUI::is_admin()) :
 			// For JavaScript that needs to be generated dynamically
 			add_action('admin_print_scripts', array('FeedWordPressSettingsUI', 'admin_scripts'));
@@ -1938,7 +1927,7 @@ for a production server.</p>
 		$timeout = intval($timeout);
 
 		$pie_class = apply_filters('feedwordpress_simplepie_class', 'FeedWordPie');
-		$cache_class = apply_filters('feedwordpress_cache_class', 'WP_Feed_Cache');
+		$cache_class = apply_filters('feedwordpress_cache_class', 'FeedWordPie_Cache');
 		$file_class = apply_filters('feedwordpress_file_class', 'FeedWordPie_File');
 		$parser_class = apply_filters('feedwordpress_parser_class', 'FeedWordPie_Parser');
 		$item_class = apply_filters('feedwordpress_item_class', 'FeedWordPie_Item');
@@ -1946,7 +1935,7 @@ for a production server.</p>
 
 		$feed = new $pie_class;
 		$feed->set_feed_url($url);
-		$feed->set_cache_class($cache_class);
+		$feed->registry->register('Cache', $cache_class);
 		$feed->set_timeout($timeout);
 
 		$feed->set_content_type_sniffer_class($sniffer_class);
@@ -2265,6 +2254,17 @@ EOMAIL;
 		return $cap;
 	} /* FeedWordPress::menu_cap () */
 
+	public function plugin_dir_path ($path = '') {
+		$dir = plugin_dir_path( __FILE__ );
+		$file_path = "${dir}${path}";
+		return apply_filters( "feedwordpress_plugin_dir_path", $file_path );
+	} /* FeedWordPress::plugin_dir_path () */
+	
+	public function plugin_dir_url ($path = '') {
+		$url_path = plugins_url( $path, __FILE__ );
+		return apply_filters( "feedwordpress_plugin_dir_url", $url_path );
+	} /* FeedWordPRess::plugin_dir_url () */
+	
 	static function path ($filename = '') {
 		global $fwp_path;
 
@@ -2272,6 +2272,7 @@ EOMAIL;
 		if (strlen($filename) > 0) :
 			$path .= '/'.$filename;
 		endif;
+		
 		return $path;
 	} /* FeedWordPress::path () */
 
