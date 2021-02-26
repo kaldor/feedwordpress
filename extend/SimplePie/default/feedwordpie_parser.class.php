@@ -123,6 +123,10 @@ class FeedWordPie_Parser extends SimplePie_Parser {
 
 			// Parse!
 			$results = $this->do_xml_parse_attempt($xml, $data);
+			if ($xml === false)  {
+				$this->error_string = "We have an invalid xml parser";
+				return false;
+			}
 			$parseResults = $results[0];
 			$data = $results[1];
 
