@@ -81,7 +81,7 @@ class SyndicatedLink {
 			$stale = true; // update on the next timed update
 		elseif ( !$this->setting('update/last') ) :
 			$stale = true; // initial update
-		elseif ($feedwordpress->force_update_all()) :
+		elseif ($feedwordpress && $feedwordpress->force_update_all()) :
 			$stale = true; // forced general updating
 		else :
 			$after = (
