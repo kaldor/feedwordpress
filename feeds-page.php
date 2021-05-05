@@ -976,7 +976,7 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 					<?php
 					$link = NULL;
 					$post = NULL;
-					if (!is_wp_error($rss) and count($rss->items) > 0):
+					if (!is_wp_error($rss) and isset($rss->items) and is_countable($rss->items) && count($rss->items) > 0):
 						// Prepare to display Sample Item
 						$link = new MagpieMockLink(array('simplepie' => $pie, 'magpie' => $rss), $f);
 						$post = new SyndicatedPost(array('simplepie' => $rss->originals[0], 'magpie' => $rss->items[0]), $link);
