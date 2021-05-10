@@ -1725,7 +1725,7 @@ class SyndicatedPost {
 			if ('fwpretired'==$status and $this->link->is_non_incremental()) :
 				FeedWordPress::diagnostic('syndicated_posts', "Un-retiring previously retired post # ".$this->wp_id()." due to re-appearance on non-incremental feed.");
 				set_post_field('post_status', $this->post['post_status'], $this->wp_id());
-				wp_transition_post_status($this->post['post_status'], $status, (object)$this->post);
+				wp_transition_post_status($this->post['post_status'], $status, get_post($this->wp_id()));
 			elseif ('fwpzapped'==$status) :
 				// Set this new revision up to be
 				// blanked on the next update.
