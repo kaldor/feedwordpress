@@ -138,7 +138,7 @@ class FeedWordPressSyndicationPage extends FeedWordPressAdminPage {
 				// $link_list has previously been sanitized for html by self::requested_link_ids_sql
 				$targets = $wpdb->get_results("
 				SELECT * FROM $wpdb->links
-				WHERE link_id IN ${link_list}
+				WHERE link_id IN {$link_list}
 				");
 				if (is_array($targets)) :
 					foreach ($targets as $target) :
@@ -890,7 +890,7 @@ regular donation</a>) using an existing PayPal account or any major credit card.
 			// $link_list has previously been sanitized for html by self::requested_link_ids_sql
 			$targets = $wpdb->get_results("
 				SELECT * FROM $wpdb->links
-				WHERE link_id IN ${link_list}
+				WHERE link_id IN {$link_list}
 				");
 	?>
 	<form action="<?php print $this->form_action(); ?>" method="post">
@@ -1013,7 +1013,7 @@ regular donation</a>) using an existing PayPal account or any major credit card.
 			// $link_list has previously been sanitized for html by self::requested_link_ids_sql
 			$targets = $wpdb->get_results("
 				SELECT * FROM $wpdb->links
-				WHERE link_id IN ${link_list}
+				WHERE link_id IN {$link_list}
 				");
 	?>
 	<form action="<?php print $this->form_action(); ?>" method="post">
@@ -1108,7 +1108,7 @@ function fwp_dashboard_update_if_requested ($object) {
 			else :
 				$display_uri = esc_html(feedwordpress_display_url($uri));
 				$uri = esc_html($uri);
-				echo "<li><p><strong>Error:</strong> There was a problem updating <code><a href=\"$uri\">${display_uri}</a></code></p></li>\n";
+				echo "<li><p><strong>Error:</strong> There was a problem updating <code><a href=\"$uri\">{$display_uri}</a></code></p></li>\n";
 			endif;
 		endforeach;
 		echo "</ul>\n";
