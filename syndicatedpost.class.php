@@ -806,7 +806,7 @@ class SyndicatedPost {
 			$fc = get_option("feedwordpress_syndication_cats");
 			if ($fc) :
 				$cats = array_merge($cats, explode("\n", $fc));
-				$log[] = "found add categories [${fc}]";
+				$log[] = "found add categories [{$fc}]";
 			endif;
 		endif;
 
@@ -850,19 +850,19 @@ class SyndicatedPost {
 
 				// See if we should get the globals
 				if ('no' != $this->link->setting("add/$tax", NULL, 'yes')) :
-					$log[] = "adding ${tax}";
+					$log[] = "adding {$tax}";
 					if (isset($globalTerms[$tax])) :
 						$terms = $globalTerms[$tax];
-						$log[] = "found ${tax} terms ".implode(', ', $terms);
+						$log[] = "found {$tax} terms ".implode(', ', $terms);
 					endif;
 				else:
-					$log[] = "NOT adding ${tax}";
+					$log[] = "NOT adding {$tax}";
 				endif;
 
 				// Now merge in the locals
 				if (isset($feedTerms[$tax])) :
 					$taxLocalTerms = $feedTerms[$tax];
-					$log[] = "have local terms for ${tax}: ".print_r($taxLocalTerms, true);
+					$log[] = "have local terms for {$tax}: ".print_r($taxLocalTerms, true);
 					$terms = array_merge($terms, $taxLocalTerms);
 				endif;
 
