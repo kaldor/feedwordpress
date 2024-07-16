@@ -9,6 +9,7 @@ require_once(dirname(__FILE__).'/feedtime.class.php');
  * @version 2010.0612
  */
 
+#[\AllowDynamicProperties]
 class MagpieFromSimplePie {
 	var $pie;
 	var $originals;
