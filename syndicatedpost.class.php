@@ -416,6 +416,10 @@ class SyndicatedPost {
 		# content for the excerpt.
 		$content = $this->content();
 
+		if (is_null($content)) {
+			$content = '';
+		}
+
 		// Ignore whitespace, case, and tag cruft.
 		$theExcerpt = preg_replace('/\s+/', '', strtolower(strip_tags(html_entity_decode($excerpt))));
 		$theContent = preg_replace('/\s+/', '', strtolower(strip_tags(html_entity_decode($content))));
@@ -930,7 +934,7 @@ class SyndicatedPost {
 	 */
 	function inline_tags () {
 		$tags = array();
-		$content = $this->content();
+		$content = $this->content() ?? '';
 		$pattern = FeedWordPressHTML::tagWithAttributeRegex('a', 'rel', 'tag');
 		preg_match_all($pattern, $content, $refs, PREG_SET_ORDER);
 		if (is_countable($refs) and count($refs) > 0) :
@@ -1222,7 +1226,7 @@ class SyndicatedPost {
 			$content = preg_replace_callback (
 				$pattern,
 				array($obj, 'strip_attribute_from_tag'),
-				$content
+				$content ?? ''
 			);
 		endforeach;
 		return $content;
