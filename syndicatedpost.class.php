@@ -407,17 +407,13 @@ class SyndicatedPost {
 
 	public function excerpt () {
 		# Identify and sanitize excerpt: atom:summary, or rss:description
-		$excerpt = $this->entry->get_description();
+		$excerpt = $this->entry->get_description() ?? '';
 
 		# Many RSS feeds use rss:description, inadvisably, to
 		# carry the entire post (typically with escaped HTML).
 		# If that's what happened, we don't want the full
 		# content for the excerpt.
-		$content = $this->content();
-
-		if (is_null($content)) {
-			$content = '';
-		}
+		$content = $this->content() ?? '';
 
 		// Ignore whitespace, case, and tag cruft.
 		$theExcerpt = preg_replace('/\s+/', '', strtolower(strip_tags(html_entity_decode($excerpt))));
