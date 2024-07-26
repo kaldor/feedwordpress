@@ -1189,11 +1189,13 @@ class SyndicatedPost {
 				// Relying on preg_replace_callback() here can cause a PHP seg fault on my development
 				// server. preg_match_all() causes a similar problem. Apparently this is a PCRE issue
 				// Cf. discussion of similar issue <https://bugs.php.net/bug.php?id=65009>
-				$content = preg_replace_callback (
-					$pattern,
-					array($obj, 'resolve_single_relative_uri'),
-					$content
-				);
+				$content = is_null($content)
+					? ''
+					: preg_replace_callback (
+						$pattern,
+						array($obj, 'resolve_single_relative_uri'),
+						$content
+					);
 
 			endforeach;
 		endif;
