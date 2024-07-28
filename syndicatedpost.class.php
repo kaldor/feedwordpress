@@ -2196,7 +2196,7 @@ EOM;
 		if (!is_null($source)) : $candidates[] = $source['title']; endif;
 		$candidates[] = $this->link->name(/*fromFeed=*/ true);
 		$candidates[] = $this->link->name(/*fromFeed=*/ false);
-		if (strlen($this->link->homepage()) > 0) : $candidates[] = feedwordpress_display_url($this->link->homepage()); endif;
+		if (!is_null($this->link->homepage()) && strlen($this->link->homepage()) > 0) : $candidates[] = feedwordpress_display_url($this->link->homepage()); endif;
 		$candidates[] = feedwordpress_display_url($this->link->uri());
 		$candidates[] = 'unknown author';
 
