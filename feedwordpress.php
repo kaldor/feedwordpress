@@ -1713,7 +1713,7 @@ class FeedWordPress {
 	} /* FeedWordPress::null_email_set () */
 
 	public static function is_null_email ($email) {
-		$ret = in_array(strtolower(trim($email)), FeedWordPress::null_email_set());
+		$ret = in_array(is_null($email) ? '' : strtolower(trim($email)), FeedWordPress::null_email_set());
 		$ret = apply_filters('syndicated_item_author_is_null_email', $ret, $email);
 		return $ret;
 	} /* FeedWordPress::is_null_email () */
