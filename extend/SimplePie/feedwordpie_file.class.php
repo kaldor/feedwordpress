@@ -75,7 +75,7 @@ class FeedWordPie_File extends WP_SimplePie_File {
 			}
 
 			if ($source InstanceOf SyndicatedLink) :
-				$source->update_setting('link/filesize', strlen($this->body));
+				$source->update_setting('link/filesize', is_null($this->body) ? 0 : strlen($this->body));
 				$source->update_setting('link/http status', $this->status_code);
 				$source->save_settings(/*reload=*/ true);
 			endif;
