@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__) . '/admin-ui.php');
 require_once(dirname(__FILE__) . '/updatedpostscontrol.class.php');
 
+#[\AllowDynamicProperties]
 class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 	var $link = NULL;
 	var $updatedPosts = NULL;
