@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . '/magpiemocklink.class.php');
 require_once(dirname(__FILE__) . '/feedfinder.class.php');
 require_once(dirname(__FILE__) . '/updatedpostscontrol.class.php');
 
+#[\AllowDynamicProperties]
 class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 	var $HTTPStatusMessages = array (
 		200 => 'OK. FeedWordPress had no problems retrieving the content at this URL but the content does not seem to be a feed, and does not seem to include links to any feeds.',
