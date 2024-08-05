@@ -195,7 +195,7 @@ function fwp_time_elapsed ($ts) {
 			$ret = __(human_time_diff($ts)." ago");
 		endif;
 	else :
-		$ret = strftime('%x %X', $ts);
+		$ret = date('Y-m-d H:i:s', $ts);
 	endif;
 	return $ret;
 }
