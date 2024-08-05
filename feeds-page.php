@@ -263,10 +263,10 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 				if (isset($page->link->settings['update/timed']) and $page->link->settings['update/timed']=='automatically') :
 					echo 'next: ';
 					$next = $page->link->settings['update/last'] + ((int) $page->link->settings['update/ttl'] * 60);
-					if (strftime('%x', time()) != strftime('%x', $next)) :
-						echo strftime('%x', $next)." ";
+					if (date('Y-m-d', time()) != date('Y-m-d', $next)):
+						echo date('Y-m-d', $next)." ";
 					endif;
-					echo strftime('%X', $page->link->settings['update/last']+((int) $page->link->settings['update/ttl']*60));
+					echo date('H-i-s', $page->link->settings['update/last']+((int) $page->link->settings['update/ttl']*60));
 				else :
 					echo "every ".$page->link->settings['update/ttl']." minute".(($page->link->settings['update/ttl']!=1)?"s":"");
 				endif;
