@@ -145,7 +145,9 @@ class SyndicatedLink {
 		$resume = ('yes'==$this->setting('update/unfinished'));
 		if ($resume) :
 			// pick up where we left off
-			$processed = array_map('trim', explode("\n", $this->setting('update/processed')));
+			$processed = is_null($this->setting('update/processed'))
+				? array()
+				: array_map('trim', explode("\n", $this->setting('update/processed')));
 		else :
 			// begin at the beginning
 			$processed = array();
