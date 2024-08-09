@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . '/admin-ui.php');
 
+#[\AllowDynamicProperties]
 class FeedWordPressAuthorsPage extends FeedWordPressAdminPage {
 	var $authorlist = NULL;
 	var $rule_count = 0;
