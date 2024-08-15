@@ -213,7 +213,7 @@ class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 
 		if ($page->for_feed_settings()) :
 			$formatting_filters = null;
-			$url = preg_replace('|/+$|', '', $page->link->homepage());
+			$url = preg_replace('|/+$|', '', $page->link->homepage() ?? '');
 		else :
 			$formatting_filters = get_option('feedwordpress_formatting_filters', 'no');
 			$url = 'http://example.com';
