@@ -1161,9 +1161,14 @@ class SyndicatedLink {
 		// <http://dev.mysql.com/doc/mysql/en/char.html>), and (2)
 		// because I doubt most people want to make a semantic
 		// distinction between 'Computers' and 'Computers  '
-		if (!is_null($cats)) {
-			$cats = array_map('trim', $cats);
-		}
+		$cats = array_map(
+			function($cat) {
+				return is_null($cat)
+					? null
+					: trim($cat);
+				},
+				$cats
+			);
 
 		$terms = array();
 		foreach ($taxonomies as $tax) :
