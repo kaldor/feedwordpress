@@ -1174,7 +1174,7 @@ class SyndicatedLink {
 		endforeach;
 
 		foreach ($cats as $cat_name) :
-			if (strlen(trim($cat_name)) < 1) :
+			if (is_null($cat_name) || strlen(trim($cat_name)) < 1) :
 				continue;
 			endif;
 
