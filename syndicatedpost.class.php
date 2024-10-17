@@ -445,7 +445,9 @@ class SyndicatedPost {
 	public function permalink () {
 		// Handles explicit <link> elements and also RSS 2.0 cases with
 		// <guid isPermaLink="true">, etc. Hooray!
-		$permalink = $this->entry->get_link();
+		$permalink = is_null($this->entry)
+			? null
+			: $this->entry->get_link();
 		return $permalink;
 	} /* SyndicatedPost::permalink () */
 
