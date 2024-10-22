@@ -264,7 +264,9 @@ class FeedFinder {
 		$href = array ();
 		for ($n=0; $n<$link_count; $n++) {
 			if (strtolower($links[$n]['rel']) == 'alternate') {
-				if (in_array(strtolower($links[$n]['type']), $this->_feed_types)) {
+				if (!is_null($links[$n]['type'])
+					&& in_array(strtolower($links[$n]['type']), $this->_feed_types)
+				) {
 					$href[] = $links[$n]['href'];
 				} /* if */
 			} /* if */
