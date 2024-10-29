@@ -72,7 +72,7 @@ class SyndicatedPost {
 		$this->feed = $source->magpie;
 		$this->feedmeta = $source->settings;
 
-		FeedWordPress::diagnostic('feed_items', 'Considering item ['.$this->guid().'] "'.$this->entry->get_title().'"');
+		FeedWordPress::diagnostic('feed_items', 'Considering item ['.$this->guid().'] "'. (is_null($this->entry) ? '' : $this->entry->get_title()).'"');
 
 		# Dealing with namespaces can get so fucking fucked.
 		$this->xmlns['forward'] = $source->magpie->_XMLNS_FAMILIAR;
