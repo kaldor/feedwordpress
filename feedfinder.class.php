@@ -185,6 +185,10 @@ class FeedFinder {
 	function is_feed ($uri = NULL) {
 		$data = $this->data($uri);
 
+		if (is_null($data)) {
+			return false;
+		}
+
 		return (
 			preg_match (
 				"\007(".implode('|',$this->_feed_markers).")\007i",
