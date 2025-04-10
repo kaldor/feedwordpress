@@ -372,7 +372,7 @@ class SyndicatedLink {
 			$this->update_setting('update/timed', 'automatically');
 		endif;
 
-		$this->update_setting('update/fudge', rand(0, (int) ($ttl/3))*60);
+		$this->update_setting('update/fudge', rand(0, ($ttl/3))*60);
 
 		$this->update_setting('update/ttl', apply_filters(
 			'syndicated_feed_ttl',
@@ -846,7 +846,7 @@ class SyndicatedLink {
 
 	public function authentication_method () {
 		$auth = $this->setting('http auth method', NULL);
-		if (('-' == $auth) or ($auth === '')) :
+		if (('-' == $auth) or (strlen($auth)==0)) :
 			$auth = NULL;
 		endif;
 		return $auth;
@@ -1076,7 +1076,7 @@ class SyndicatedLink {
 
 		// We get a fudge of 1/3 of window from elsewhere. We'll do some more
 		// fudging here.
-		$fudgedInterval = $updateWindow + rand( (int) -($updateWindow/6), (int) (5*($updateWindow/12)) );
+		$fudgedInterval = $updateWindow+rand(-($updateWindow/6), 5*($updateWindow/12));
 		return apply_filters('syndicated_feed_automatic_ttl', $fudgedInterval, $this);
 	} /* SyndicatedLink::automatic_ttl () */
 
