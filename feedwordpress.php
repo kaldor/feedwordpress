@@ -6,7 +6,6 @@ Description: simple and flexible Atom/RSS syndication for WordPress
 Version: 2021.0713
 Author: C. Johnson
 Author URI: https://feedwordpress.radgeek.com/contact/
-Update URI: https://www.pugpig.com/feedwordpress-fork/
 License: GPL
 */
 
