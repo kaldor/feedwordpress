@@ -111,10 +111,6 @@ class FeedWordPie_Parser extends SimplePie_Parser {
 		if ($xml_is_sane)
 		{
 			$xml = xml_parser_create_ns($this->encoding, $this->separator);
-			if ($xml === false) {
-				$this->error_string = "Could not create an XML parser with encoding [{$this->encoding}] and separator [{$this->separator}]";
-				return false;
-			}
 			xml_parser_set_option($xml, XML_OPTION_SKIP_WHITE, 1);
 			xml_parser_set_option($xml, XML_OPTION_CASE_FOLDING, 0);
 			xml_set_object($xml, $this);
