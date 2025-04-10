@@ -397,7 +397,6 @@ function fwp_syndication_manage_page_links_table_rows ($links, $page, $visible =
 
 	<td><div style="float: right; padding-left: 10px">
 	<input type="submit" class="button" name="update_uri[<?php print esc_html($link->link_rss); ?>]" value="<?php _e('Update Now'); ?>" />
-	<input type="submit" class="button button-primary" name="update_uri[<?php print esc_html($link->link_rss); ?>]" value="<?php _e('Force Update Now'); ?>" style="background: #EE0606;" />
 	</div>
 	<?php
 		print $lastUpdated;
