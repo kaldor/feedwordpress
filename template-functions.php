@@ -26,7 +26,7 @@ function is_syndicated ($id = NULL) {
  * @param string $url provides the URL to display
  * @param int $before a number of characters to preserve from the beginning of the URL if it must be shortened
  * @param int $after a number of characters to preserve from the end of the URL if it must be shortened
- * @return string containing an abbreviated display form of the URL (e.g.: `feedwordpress.radgeek.net/feed`) 
+ * @return string containing an abbreviated display form of the URL (e.g.: `feedwordpress.radgeek.net/feed`)
  */
 function feedwordpress_display_url ($url, $before = 60, $after = 0) {
 	$bits = is_null($url)
@@ -46,7 +46,7 @@ function feedwordpress_display_url ($url, $before = 60, $after = 0) {
 		.(isset($bits['query'])?'?'.$bits['query']:'');
 
 	if (strlen($url) > ($before+$after)) :
-		$url = substr($url, 0, $before).'.'.substr($url, 0 - $after, $after);
+		$url = substr($url, 0, $before).'&hellip;'.substr($url, 0 - $after, $after);
 	endif;
 
 	return $url;
@@ -63,7 +63,7 @@ function get_syndication_source_link ($original = NULL, $id = NULL) {
 } /* function get_syndication_source_link() */
 
 function the_syndication_source_link ($original = NULL, $id = NULL) {
-	echo get_syndication_source_link($original, $id);
+	echo esc_url( get_syndication_source_link($original, $id) );
 } /* function the_syndication_source_link() */
 
 function get_syndication_source ($original = NULL, $id = NULL) {
@@ -72,7 +72,7 @@ function get_syndication_source ($original = NULL, $id = NULL) {
 } /* function get_syndication_source() */
 
 function the_syndication_source ($original = NULL, $id = NULL) {
-	echo get_syndication_source($original, $id);
+	echo esc_html( get_syndication_source($original, $id) );
 } /* function the_syndication_source () */
 
 function get_syndication_feed ($original = NULL, $id = NULL) {
@@ -81,16 +81,16 @@ function get_syndication_feed ($original = NULL, $id = NULL) {
 } /* function get_syndication_feed() */
 
 function the_syndication_feed ($original = NULL, $id = NULL) {
-	echo get_syndication_feed($original, $id);
+	echo esc_url( get_syndication_feed($original, $id) );
 } /* function the_syndication_feed() */
 
 function get_syndication_feed_guid ($original = NULL, $id = NULL) {
 	$p = new FeedWordPressLocalPost($id);
-	return $p->syndication_feed_guid($original);
+	return $p->syndication_feed_guid( $original );
 } /* function get_syndication_feed_guid () */
 
 function the_syndication_feed_guid ($original = NULL, $id = NULL) {
-	echo get_syndication_feed_guid($original, $id);
+	echo esc_html( get_syndication_feed_guid( $original, $id ) );
 } /* function the_syndication_feed_guid () */
 
 function get_syndication_feed_id ($id = NULL) {
@@ -99,7 +99,7 @@ function get_syndication_feed_id ($id = NULL) {
 } /* function get_syndication_feed_id () */
 
 function the_syndication_feed_id ($id = NULL) {
-	echo get_syndication_feed_id($id);
+	echo esc_html( get_syndication_feed_id($id) );
 } /* function the_syndication_feed_id () */
 
 function get_syndication_feed_object ($id = NULL) {
@@ -123,7 +123,7 @@ function get_syndication_permalink ($id = NULL) {
 } /* function get_syndication_permalink () */
 
 function the_syndication_permalink ($id = NULL) {
-	echo get_syndication_permalink($id);
+	echo esc_url( get_syndication_permalink($id) );
 } /* function the_syndication_permalink () */
 
 /**
@@ -143,12 +143,12 @@ function the_syndication_permalink ($id = NULL) {
  *
  * @since 2010.0217
  */
-function get_local_permalink ($id = NULL) {
+function get_local_permalink ( $id = NULL ) {
 	global $feedwordpress_the_original_permalink;
 
 	// get permalink, and thus activate filter and force global to be filled
 	// with original URL.
-	$url = get_permalink($id);
+	$url = get_permalink( $id );
 	return $feedwordpress_the_original_permalink;
 } /* get_local_permalink() */
 
@@ -163,7 +163,7 @@ function get_local_permalink ($id = NULL) {
  *
  * @since 2010.0217
  */
-function the_local_permalink ($id = NULL) {
-	print apply_filters('the_permalink', get_local_permalink($id));
+function the_local_permalink ( $id = NULL ) {
+	print esc_url( apply_filters( 'the_permalink', get_local_permalink( $id ) ) );
 } /* function the_local_permalink() */
 

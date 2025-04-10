@@ -21,8 +21,8 @@ class FeedWordPressPerformancePage extends FeedWordPressAdminPage {
 		FeedWordPressCompatibility::validate_http_request(/*action=*/ 'feedwordpress_performance', /*capability=*/ 'manage_options');
 
 		if (strtoupper($_SERVER['REQUEST_METHOD'])=='POST') :
-			$this->accept_POST($_POST);
-			do_action('feedwordpress_admin_page_performance_save', $_POST, $this);
+			$this->accept_POST();
+			do_action('feedwordpress_admin_page_performance_save', null, $this);
 		endif;
 
 		////////////////////////////////////////////////
@@ -61,22 +61,22 @@ class FeedWordPressPerformancePage extends FeedWordPressAdminPage {
 		$this->close_sheet();
 	} /* FeedWordPressPerformancePage::display () */
 
-	function accept_POST ($post) {
+	function accept_POST () {
 		global $feedwordpress;
 		
-		if (isset($post['create_index'])) :
+		if ( ! is_null( FeedWordPress::post( 'create_index' ) ) ) :
 			FeedWordPress::create_guid_index();
 			$this->updated = __('guid column index created on database table.');
 		endif;
-		if (isset($post['remove_index'])) :
+		if ( ! is_null( FeedWordPress::post( 'remove_index' ) ) ) :
 			FeedWordPress::remove_guid_index();
 			$this->updated = __('guid column index removed from database table.');
 		endif;
 
-		if (isset($post['clear_cache'])) :
+		if ( ! is_null( FeedWordPress::post( 'clear_cache' ) ) ) :
 			$N = $feedwordpress->clear_cache();
 			$feeds = (($N == 1) ? __("feed") : __("feeds"));
-			$this->updated = sprintf(__("Cleared %d cached %s from WordPress database."), $N, $feeds);
+			$this->updated = sprintf( __("Cleared %d cached %s from WordPress database."), $N, $feeds );
 		endif;
 
 	} /* FeedWordPressPerformancePage::accept_POST () */
@@ -94,7 +94,7 @@ and force FeedWordPress to make a fresh scan for updates on syndicated feeds.</p
 
 <tr style="vertical-align: top">
 <th width="33%" scope="row">Guid index:</th>
-<td width="67%"><?php if (!FeedWordPress::has_guid_index()) : ?>
+<td width="67%"><?php if ( !FeedWordPress::has_guid_index()) : ?>
 <input class="button" type="submit" name="create_index" value="Create index on guid column in posts database table" />
 <p>Creating this index may significantly improve performance on some large
 FeedWordPress installations.</p>

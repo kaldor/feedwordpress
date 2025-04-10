@@ -33,8 +33,8 @@
 #	Values of keys in link_notes are accessible from templates using
 #	the function `get_feed_meta($key)` if this plugin is activated.
 
-require_once(dirname(__FILE__).'/magpiefromsimplepie.class.php');
-require_once(dirname(__FILE__).'/feedwordpressparsedpostmeta.class.php');
+require_once dirname( __FILE__ ) . '/magpiefromsimplepie.class.php';
+require_once dirname( __FILE__ ) . '/feedwordpressparsedpostmeta.class.php';
 
 class SyndicatedLink {
 	var $id = null;
@@ -44,8 +44,6 @@ class SyndicatedLink {
 	var $magpie = null;
 
 	public function __construct( $link ) {
-		global $wpdb;
-
 		if (is_object($link)) :
 			$this->link = $link;
 			$this->id = $link->link_id;
@@ -79,9 +77,9 @@ class SyndicatedLink {
 			$stale = false; // don't update on any timed updates; pings only
 		elseif ($this->setting('update/hold')=='next') :
 			$stale = true; // update on the next timed update
-		elseif ( !$this->setting('update/last') ) :
+		elseif ( ! $this->setting('update/last') ) :
 			$stale = true; // initial update
-		elseif ($feedwordpress && $feedwordpress->force_update_all()) :
+		elseif ( !empty($feedwordpress) and $feedwordpress->force_update_all()) :
 			$stale = true; // forced general updating
 		else :
 			$after = (
@@ -110,9 +108,9 @@ class SyndicatedLink {
 			$this->magpie = new MagpieFromSimplePie($this->simplepie, NULL);
 		endif;
 	} /* SyndicatedLink::fetch () */
-	
+
 	public function live_posts () {
-		if (!is_object($this->simplepie)) :
+		if ( !is_object($this->simplepie)) :
 			$this->fetch();
 		endif;
 
@@ -137,17 +135,15 @@ class SyndicatedLink {
 
 		$url = $this->uri(array('add_params' => true, 'fetch' => true));
 		FeedWordPress::diagnostic('updated_feeds', 'Polling feed ['.$url.']');
-	
+
 		$this->fetch();
-	
+
 		$new_count = NULL;
 
 		$resume = ('yes'==$this->setting('update/unfinished'));
 		if ($resume) :
 			// pick up where we left off
-			$processed = is_null($this->setting('update/processed'))
-				? array()
-				: array_map('trim', explode("\n", $this->setting('update/processed')));
+			$processed = array_map('trim', explode("\n", $this->setting('update/processed')));
 		else :
 			// begin at the beginning
 			$processed = array();
@@ -166,7 +162,7 @@ class SyndicatedLink {
 				$oldError = unserialize($oldError);
 			endif;
 
-			if (!is_null($oldError)) :
+			if ( !is_null($oldError)) :
 				// Copy over the in-error-since timestamp
 				$theError['since'] = $oldError['since'];
 
@@ -196,20 +192,20 @@ class SyndicatedLink {
 			# -- Update Link metadata live from feed
 			$channel = $this->magpie->channel;
 
-			if (!isset($channel['id'])) :
+			if ( !isset($channel['id'])) :
 				$channel['id'] = $this->link->link_rss;
 			endif;
 
 			$update = array();
-			if (!$this->hardcode('url') and isset($channel['link'])) :
+			if ( ! $this->hardcode('url') and isset($channel['link'])) :
 				$update[] = "link_url = '".esc_sql($channel['link'])."'";
 			endif;
 
-			if (!$this->hardcode('name') and isset($channel['title'])) :
+			if ( ! $this->hardcode('name') and isset($channel['title'])) :
 				$update[] = "link_name = '".esc_sql($channel['title'])."'";
 			endif;
 
-			if (!$this->hardcode('description')) :
+			if ( ! $this->hardcode('description')) :
 				if (isset($channel['tagline'])) :
 					$update[] = "link_description = '".esc_sql($channel['tagline'])."'";
 				elseif (isset($channel['description'])) :
@@ -224,7 +220,7 @@ class SyndicatedLink {
 			$this->update_setting('update/last', time());
 			$this->do_update_ttl();
 
-			if (!$this->setting('update/hold') != 'ping') :
+			if ( ! $this->setting('update/hold') != 'ping') :
 				$this->update_setting('update/hold', 'scheduled');
 			endif;
 
@@ -246,7 +242,7 @@ class SyndicatedLink {
 			$crashed = false;
 
 			$posts = $this->live_posts();
-			
+
 			$this->magpie->originals = $posts;
 
 			// If this is a complete feed, rather than an incremental feed, we
@@ -266,24 +262,24 @@ class SyndicatedLink {
 
 			if (is_array($posts)) :
 				foreach ($posts as $key => $item) :
-					if (!$this->pause_updates()) :
+					if ( ! $this->pause_updates()) :
 						$post = new SyndicatedPost($item, $this);
 
-						if (!$resume or !in_array(trim($post->guid()), $processed)) :
+						if ( ! $resume or !in_array(trim($post->guid()), $processed)) :
 							$processed[] = $post->guid();
-							if (!$post->filtered()) :
+							if ( ! $post->filtered()) :
 								$new = $post->store();
 								if ( $new !== false ) $new_count[$new]++;
 							endif;
 
-							if (!is_null($crash_ts) and (time() > $crash_ts)) :
+							if ( !is_null($crash_ts) and (time() > $crash_ts)) :
 								$crashed = true;
 								break;
 							endif;
 						endif;
 
 						unset($post);
-					endif;					
+					endif;
 				endforeach;
 			endif;
 
@@ -291,7 +287,7 @@ class SyndicatedLink {
 				// Check for use of Atom tombstones. Spec:
 				// <http://tools.ietf.org/html/draft-snell-atompub-tombstones-18>
 				$tombstones = $this->simplepie->get_feed_tags('http://purl.org/atompub/tombstones/1.0', 'deleted-entry');
-				if (!is_null($tombstones) && count($tombstones) > 0) :
+				if ( !is_null($tombstones) && count($tombstones) > 0) :
 					foreach ($tombstones as $tombstone) :
 						$ref = NULL;
 						foreach (array('', 'http://purl.org/atompub/tombstones/1.0') as $ns) :
@@ -324,21 +320,27 @@ class SyndicatedLink {
 			do_action("update_syndicated_feed_items_{$suffix}", $this->id, $this);
 
 			$this->update_setting('update/processed', $processed);
-			if (!$crashed) :
+			if ( ! $crashed) :
 				$this->update_setting('update/unfinished', 'no');
 			endif;
 			$this->update_setting('link/item count', count($posts));
 
 			// Copy back any changes to feed settings made in the
 			// course of updating (e.g. new author rules)
-			$update_set = "link_notes = '".esc_sql($this->settings_to_notes())."'";
+			$update_set = "link_notes = '" . esc_sql($this->settings_to_notes())."'";
 
 			// Update the properties of the link from the feed information
 			$result = $wpdb->query("
-			UPDATE $wpdb->links
-			SET $update_set
-			WHERE link_id='$this->id'
+				UPDATE {$wpdb->links}
+				SET {$update_set}
+				WHERE link_id='{$this->id}'
 			");
+			if ( FALSE === $result ) :
+				FeedWordPress::diagnostic(
+					'SyndicatedLink/poll',
+					'Database update failed',
+				);
+			endif;
 
 			do_action("update_syndicated_feed_completed", $this->id, $this);
 		endif;
@@ -356,33 +358,40 @@ class SyndicatedLink {
 		return $new_count;
 	} /* SyndicatedLink::poll() */
 
-	public function do_update_ttl () {
-		list($ttl, $xml) = $this->ttl(/*return element=*/ true);
+	/**
+	  * Update the time to live of this link.
+ */
+public function do_update_ttl(): void {
+    // Get ttl and xml elements, return them if available
+    list($ttl, $xml) = $this->ttl(true);
 
-		if (!is_null($ttl)) :
-			$this->update_setting('update/ttl', $ttl);
-			$this->update_setting('update/xml', $xml);
-			$this->update_setting('update/timed', 'feed');
-		else :
-			$ttl = $this->automatic_ttl();
-			$this->update_setting('update/ttl', $ttl);
-			$this->update_setting('update/xml', NULL);
-			$this->update_setting('update/timed', 'automatically');
-		endif;
+    // Check if ttl is not null
+    if (!is_null($ttl)) {
+        $this->update_setting('update/ttl', $ttl);
+        $this->update_setting('update/xml', $xml);
+        $this->update_setting('update/timed', 'feed');
+    } else {
+        // Fallback to automatic ttl if null
+        $ttl = $this->automatic_ttl();
+        $this->update_setting('update/ttl', $ttl);
+        $this->update_setting('update/xml', null); // Explicit null
+        $this->update_setting('update/timed', 'automatically');
+    }
 
-		$this->update_setting('update/fudge', rand(0, ($ttl/3))*60);
+    // Adding a random fudge value (ensure it works across versions)
+    $this->update_setting('update/fudge', rand(0, (int)($ttl / 3)) * 60);
 
-		$this->update_setting('update/ttl', apply_filters(
-			'syndicated_feed_ttl',
-			$this->setting('update/ttl'),
-			$this
-		));
-
-	} /* SyndicatedLink::do_update_ttl () */
-	
+    // Apply filter to ttl (should be compatible with all PHP 8.x versions)
+    $this->update_setting(
+        'update/ttl',
+        apply_filters(
+            'syndicated_feed_ttl',
+            $this->setting('update/ttl'),
+            $this
+        )
+    );
+}/* SyndicatedLink::do_update_ttl () */
 	public function process_retirements ($delta) {
-		global $post;
-
 		$q = new WP_Query(array(
 		'fields' => '_synfrom',
 		'post_status__not' => 'fwpretired',
@@ -528,7 +537,7 @@ class SyndicatedLink {
 			$pair = explode(": ", $note, 2);
 			$key = (isset($pair[0]) ? $pair[0] : null);
 			$value = (isset($pair[1]) ? $pair[1] : null);
-			if (!is_null($key) and !is_null($value)) :
+			if ( !is_null($key) and !is_null($value)) :
 				// Unescape and trim() off the whitespace.
 				// Thanks to Ray Lischner for pointing out the
 				// need to trim off whitespace.
@@ -559,7 +568,7 @@ class SyndicatedLink {
 		// Set this up automagically for del.icio.us
 		$bits = parse_url($this->link->link_rss);
 		$tagspacers = array('del.icio.us', 'feeds.delicious.com');
-		if (!isset($this->settings['cat_split']) and in_array($bits['host'], $tagspacers)) :
+		if ( !isset($this->settings['cat_split']) and in_array($bits['host'], $tagspacers)) :
 			$this->settings['cat_split'] = '\s'; // Whitespace separates multiple tags in del.icio.us RSS feeds
 		endif;
 
@@ -577,7 +586,7 @@ class SyndicatedLink {
 			// Look for new format
 			$this->settings['terms'] = maybe_unserialize($this->settings['terms']);
 
-			if (!is_array($this->settings['terms'])) :
+			if ( !is_array($this->settings['terms'])) :
 				// Deal with old format instead. Ugh.
 
 				// Split on two *or more* consecutive breaks
@@ -688,6 +697,11 @@ class SyndicatedLink {
 		WHERE link_id='$this->id'
 		");
 
+		if ( $result === false )
+		{
+			error_log("query failed: " . $wpdb->last_error);
+		}
+
 		if ($reload) :
 			// force reload of link information from DB
 			if (function_exists('clean_bookmark_cache')) :
@@ -700,55 +714,71 @@ class SyndicatedLink {
 	 * Retrieves the value of a setting, allowing for a global setting to be
 	 * used as a fallback, or a constant value, or both.
 	 *
-	 * @param string $name The link setting key
-	 * @param mixed $fallback_global If the link setting is nonexistent or marked as a use-default value, fall back to the value of this global setting.
-	 * @param mixed $fallback_value If the link setting and the global setting are nonexistent or marked as a use-default value, fall back to this constant value.
-	 * @return bool TRUE on success, FALSE on failure.
+	 * @param  string  $name            The link setting key.
+	 * @param  mixed   $fallback_global If the link setting is nonexistent or
+	 *                                  marked as a use-default value, fall back
+	 *                                  to the value of this global setting.
+	 * @param  mixed   $fallback_value  If the link setting and the global setting are
+	 *                                  nonexistent or marked as ause-default value,
+	 *                                  fall back to this constant value.
+	 *
+	 * @return mixed|null Should *not* return a boolean!!
 	 */
-	public function setting ($name, $fallback_global = NULL, $fallback_value = NULL, $default = 'default') {
+	public function setting( $name, $fallback_global = NULL, $fallback_value = NULL, $default = 'default' ) {
 		$ret = NULL;
-		if (isset($this->settings[$name])) :
-			$ret = $this->settings[$name];
+		if ( isset( $this->settings[ $name ] ) ) :
+			$ret  = $this->settings[ $name ];
 		endif;
 
 		$no_value = (
-			is_null($ret)
-			or (is_string($ret) and strtolower($ret)==$default)
+			is_null( $ret )
+			or ( is_string( $ret ) and strtolower( $ret ) == $default )
 		);
 
-		if ($no_value and !is_null($fallback_global)) :
+		if ( $no_value and ! is_null( $fallback_global ) ) :
 			// Avoid duplication of this correction
-			$fallback_global = preg_replace('/^feedwordpress_/', '', $fallback_global);
+			$fallback_global = preg_replace( '/^feedwordpress_/', '', $fallback_global );
 
 			// Occasionally we'll get an array back. Convert it to a string
-			if ( is_array($fallback_global) && sizeof($fallback_global) )
-				$fallback_global = reset($fallback_global);
+			if ( is_array( $fallback_global ) && sizeof( $fallback_global ) ) :
+				$fallback_global = reset( $fallback_global );
+			endif;
 
-			if ( !empty($fallback_global) )
-				$ret = get_option('feedwordpress_'.$fallback_global, /*default=*/ NULL);
+			if ( ! empty( $fallback_global ) ) :
+				$ret = get_option( 'feedwordpress_' . $fallback_global, /*default=*/ NULL );
+			endif;
 		endif;
 
 		$no_value = (
-			is_null($ret)
-			or (is_string($ret) and strtolower($ret)==$default)
+			is_null( $ret )
+			or ( is_string( $ret ) and strtolower( $ret ) == $default )
 		);
 
-		if ($no_value and !is_null($fallback_value)) :
+		if ( $no_value and ! is_null( $fallback_value ) ) :
 			$ret = $fallback_value;
 		endif;
 		return $ret;
-	} /* SyndicatedLink::setting () */
+	} /* SyndicatedLink::setting() */
 
-	public function merge_settings ($data, $prefix, $separator = '/') {
-		$dd = $this->flatten_array($data, $prefix, $separator);
-		$this->settings = array_merge($this->settings, $dd);
+	/**
+	 * Merge current settings with array of additional data.
+	 *
+	 * @param  array  $data		  Settings to merge with.
+	 * @param  string $prefix     Hierarchical prefix (e.g. "feed/" as in "feed/a/b/c").
+	 * @param  string $separator  Hierarchy separator (e.g., '/').
+	 *
+	 * @see SyndicatedLink::flatten_array()
+	 */
+	public function merge_settings( $data, $prefix, $separator = '/' ) {
+		$dd = $this->flatten_array( $data, $prefix, $separator );
+		$this->settings = array_merge( $this->settings, $dd );
 	} /* SyndicatedLink::merge_settings () */
 
-	public function update_setting ($name, $value, $default = 'default') {
-		if (!is_null($value) and $value != $default) :
-			$this->settings[$name] = $value;
+	public function update_setting( $name, $value, $default = 'default' ) {
+		if ( !is_null( $value ) and $value != $default ) :
+			$this->settings[ $name ] = $value;
 		else : // Zap it.
-			unset($this->settings[$name]);
+			unset( $this->settings[ $name ] );
 		endif;
 	} /* SyndicatedLink::update_setting () */
 
@@ -758,7 +788,7 @@ class SyndicatedLink {
 
 	public function get_feed_type () {
 		$type_code = $this->setting('link/feed_type');
-		
+
 		// list derived from: <http://simplepie.org/api/class-SimplePie.html>, retrieved 2020/01/18
 		$bitmasks = array(
 			SIMPLEPIE_TYPE_RSS_090 => 'RSS 0.90',
@@ -788,10 +818,10 @@ class SyndicatedLink {
 				endif;
 			endif;
 		endforeach;
-		
+
 		return $type;
 	} /* SyndicatedLink::get_feed_type () */
-	
+
 	public function uri ($params = array()) {
 		$params = wp_parse_args($params, array(
 		'add_params' => false,
@@ -800,13 +830,13 @@ class SyndicatedLink {
 
 		// Initialize $qp (= array for added query parameters, if any)
 		$qp = array();
-		
-		$link_rss = (is_object($this->link) ? $this->link->link_rss : NULL); 
-		
+
+		$link_rss = (is_object($this->link) ? $this->link->link_rss : NULL);
+
 		// $link_rss stores the URI for the subscription as stored in the feed's record.
-		// $uri stores the effective URI of the request including any/all added query parameters 
+		// $uri stores the effective URI of the request including any/all added query parameters
 		$uri = $link_rss;
-		if (!is_null($uri) and strlen($uri) > 0 and $params['add_params']) :
+		if ( !is_null($uri) and strlen($uri) > 0 and $params['add_params']) :
 			$qp = maybe_unserialize($this->setting('query parameters', array()));
 
 			// For high-tech HTTP feed request kung fu
@@ -830,7 +860,7 @@ class SyndicatedLink {
 		// Do we have any filters that apply here?
 		$uri = apply_filters('syndicated_link_uri', $uri, $link_rss, $qp, $params, $this);
 
-		// Return the filtered link URI.		
+		// Return the filtered link URI.
 		return $uri;
 	} /* SyndicatedLink::uri () */
 
@@ -840,16 +870,19 @@ class SyndicatedLink {
 
 	public function password () {
 		return $this->setting('http password', 'http_password', NULL);
-	} /* SyndicatedLink::password () */
+	}/* SyndicatedLink::password () */
 
-	public function authentication_method () {
-		$auth = $this->setting('http auth method', NULL);
-		if (('-' == $auth) or (strlen($auth)==0)) :
-			$auth = NULL;
-		endif;
-		return $auth;
-	} /* SyndicatedLink::authentication_method () */
-
+public function authentication_method() {
+    // Retrieve the authentication method from settings
+    $auth = $this->setting('http auth method', NULL);
+    
+    // If the value is '-' or empty, treat it as NULL
+    if (empty($auth) || $auth === '-') {
+        $auth = NULL;
+    }
+    
+    return $auth;
+} /* SyndicatedLink::authentication_method () */
 	var $postmeta = array();
 	public function postmeta ($params = array()) {
 		$params = wp_parse_args($params, /*defaults=*/ array(
@@ -864,7 +897,7 @@ class SyndicatedLink {
 			if ($default_custom_settings and !is_array($default_custom_settings)) :
 				$default_custom_settings = unserialize($default_custom_settings);
 			endif;
-			if (!is_array($default_custom_settings)) :
+			if ( !is_array($default_custom_settings)) :
 				$default_custom_settings = array();
 			endif;
 
@@ -873,7 +906,7 @@ class SyndicatedLink {
 			if ($custom_settings and !is_array($custom_settings)) :
 				$custom_settings = unserialize($custom_settings);
 			endif;
-			if (!is_array($custom_settings)) :
+			if ( !is_array($custom_settings)) :
 				$custom_settings = array();
 			endif;
 
@@ -888,7 +921,7 @@ class SyndicatedLink {
 			endforeach;
 		endif;
 
-		$ret = $this->postmeta[!!$params['parsed']];
+		$ret = $this->postmeta[!! $params['parsed']];
 		if (is_string($params['field'])) :
 			$ret = $ret[$params['field']];
 		endif;
@@ -900,10 +933,11 @@ class SyndicatedLink {
 		if ($fromFeed) :
 			$value = $this->setting($setting, NULL, NULL, NULL);
 
-			$s = $this->simplepie;
-			$callable = (is_object($s) and method_exists($s, $method));
-			if (is_null($value) and $callable) :
-				$fallback = $s->{$method}();
+			$simp_pie = $this->simplepie;
+			$callable = ( is_object( $simp_pie ) and method_exists( $simp_pie, $method ) );
+			if ( is_null( $value ) and $callable ) :
+//				$fallback = $s->{$method}();	// what is fallback supposed to be here? (gwyneth 20230816)
+				$value = $simp_pie->{$method}();		// makes more sense this way!
 			endif;
 		else :
 			$value = $this->link->{$link_field};
@@ -950,14 +984,14 @@ class SyndicatedLink {
 		$params = wp_parse_args($params, array(
 		"rel" => NULL,
 		));
-		
+
 		$fLinks = array();
 		$search = array(
 			array('', 'link'),
 			array(SIMPLEPIE_NAMESPACE_ATOM_10, 'link'),
 			array(SIMPLEPIE_NAMESPACE_ATOM_03, 'link'),
 		);
-		
+
 		foreach ($search as $pair) :
 			if ($link_tags = $this->simplepie->get_feed_tags($pair[0], $pair[1])) :
 				$fLinks = array_merge($fLinks, $link_tags);
@@ -966,24 +1000,24 @@ class SyndicatedLink {
 				$fLinks = array_merge($fLinks, $link_tags);
 			endif;
 		endforeach;
-		
+
 		$ret = array();
 		foreach ($fLinks as $link) :
 			$filter = false;
-			if (!is_null($params['rel'])) :
+			if ( !is_null($params['rel'])) :
 				$filter = true;
 
 				if (isset($link['attribs'])) :
 					// Get a list of NSes from the search
 					foreach ($search as $pair) :
 						$ns = $pair[0];
-						
+
 						if (isset($link['attribs'][$ns])
 						and isset($link['attribs'][$ns]['rel'])
 						) :
 							$rel = strtolower(trim($link['attribs'][$ns]['rel']));
 							$fRel = strtolower(trim($params['rel']));
-					
+
 							if ($rel == $fRel) :
 								$filter = false;
 							endif;
@@ -991,15 +1025,15 @@ class SyndicatedLink {
 					endforeach;
 				endif;
 			endif;
-			
-			if (!$filter) :
+
+			if ( ! $filter) :
 				$ret[] = $link;
 			endif;
 		endforeach;
 
 		return $ret;
 	}
-	
+
 	public function ttl ($return_element = false) {
 		if (is_object($this->magpie)) :
 			$channel = $this->magpie->channel;
@@ -1046,7 +1080,7 @@ class SyndicatedLink {
 			// do we recognize the alphanumeric period name? if not, then guess
 			// a responsible default, e.g. roughly hourly
 			$mins = (isset($period_minutes[$period]) ? $period_minutes[$period] : 67);
-			
+
 			$xml = 'sy:updateFrequency';
 			$ret = (int) ($mins / $freq);
 
@@ -1062,21 +1096,26 @@ class SyndicatedLink {
 				$ret = NULL;
 			endif;
 		endif;
-		return ($return_element ? array($ret, $xml) : $ret);
+		return ( $return_element ? array( $ret, $xml ) : $ret );
 	} /* SyndicatedLink::ttl() */
 
-	public function automatic_ttl () {
+	/**
+	 * Sets the automatic time interval for
+	 *
+	 * @return
+	 */
+	public function automatic_ttl() {
 		// spread out over a time interval for staggered updates
-		$updateWindow = $this->setting('update/window', 'update_window', DEFAULT_UPDATE_PERIOD);
-		if (!is_numeric($updateWindow) or ($updateWindow < 1)) :
+		$updateWindow = $this->setting( 'update/window', 'update_window', DEFAULT_UPDATE_PERIOD );
+		if ( ! is_numeric( $updateWindow ) or ( $updateWindow < 1 ) ) :
 			$updateWindow = DEFAULT_UPDATE_PERIOD;
 		endif;
 
 		// We get a fudge of 1/3 of window from elsewhere. We'll do some more
 		// fudging here.
-		$fudgedInterval = $updateWindow+rand(-($updateWindow/6), 5*($updateWindow/12));
-		return apply_filters('syndicated_feed_automatic_ttl', $fudgedInterval, $this);
-	} /* SyndicatedLink::automatic_ttl () */
+		$fudgedInterval = $updateWindow + rand( - ( $updateWindow / 6 ), 5 * ( $updateWindow / 12 ) );
+		return apply_filters( 'syndicated_feed_automatic_ttl', $fudgedInterval, $this );
+	} /* SyndicatedLink::automatic_ttl() */
 
 	/**
 	 * SyndicatedLink::flatten_array (): flatten an array. Useful for
@@ -1089,44 +1128,51 @@ class SyndicatedLink {
 	 * returned array for FeedWordPress::flatten_array($a) will contain a key
 	 * $a['feed/b/c/d'] with value 'e'.
 	 *
-	 * @param array $arr
-	 * @param string $prefix
-	 * @param string $separator
-	 * @return array
+	 * @param  array   $arr		   Array to flatten.
+	 * @param  string  $prefix     Hierarchical prefix (e.g. "feed/" as in "feed/a/b/c").
+	 * @param  string  $separator  Hierarchy separator (e.g., '/').
+	 * @return array   Flattened one-dimensional array.
 	 */
-	public function flatten_array ($arr, $prefix = 'feed/', $separator = '/') {
-		$ret = array ();
-		if (is_array($arr)) :
-			foreach ($arr as $key => $value) :
-				if (is_scalar($value)) :
-					$ret[$prefix.$key] = $value;
+	public function flatten_array( $arr, $prefix = 'feed/', $separator = '/' ) {
+		$ret = array();
+		if ( is_array( $arr ) ) :
+			foreach ( $arr as $key => $value ) :
+				if ( is_scalar( $value ) ) :
+					$ret[ $prefix.$key ] = $value;
 				else :
-					$ret = array_merge($ret, $this->flatten_array($value, $prefix.$key.$separator, $separator));
+					$ret = array_merge( $ret, $this->flatten_array( $value, $prefix.$key.$separator, $separator ) );
 				endif;
 			endforeach;
 		endif;
 		return $ret;
-	} /* SyndicatedLink::flatten_array () */
+	} /* SyndicatedLink::flatten_array() */
 
-	public function hardcode ($what) {
-
-		$ret = $this->setting('hardcode '.$what, 'hardcode_'.$what, NULL);
-
-		if ('yes' == $ret) :
-			$ret = true;
-		else :
-			$ret = false;
-		endif;
-		return $ret;
+	/**
+	 * Check if a setting is hardcoded or not.
+	 *
+	 * @param  string  $what  The setting we're checking for.
+	 *
+	 * @return bool    True if the setting's value is 'yes', false otherwise.
+	 */
+	public function hardcode( $what ) {
+		return 'yes' == $this->setting( 'hardcode ' . $what, 'hardcode_' . $what, NULL );
+		// Simplified logic. (gwyneth 20230920)
 	} /* SyndicatedLink::hardcode () */
 
-	public function syndicated_status ($what, $default, $fallback = true) {
-		global $wpdb;
+	/**
+	 * Returns the syndicated status for one item.
+	 *
+	 * @param  string   $what      Item's name.
+	 * @param  mixed    $default   Default value for this item.
+	 * @param  boolean  $fallback  If true, falls back to global setting.
+	 *
+	 * @return string   SQL-ready escaped status.
+	 */
+	public function syndicated_status( $what, $default, $fallback = true ) {
+		$g_set = ( $fallback ? 'syndicated_' . $what . '_status' : NULL );
+		$ret = $this->setting( $what . ' status', $g_set, $default );
 
-		$g_set = ($fallback ? 'syndicated_' . $what . '_status' : NULL);
-		$ret = $this->setting($what.' status', $g_set, $default);
-
-		return esc_sql(trim(strtolower($ret)));
+		return esc_sql( trim( strtolower( $ret ) ) );
 	} /* SyndicatedLink:syndicated_status () */
 
 	public function taxonomies () {
@@ -1159,14 +1205,7 @@ class SyndicatedLink {
 		// <http://dev.mysql.com/doc/mysql/en/char.html>), and (2)
 		// because I doubt most people want to make a semantic
 		// distinction between 'Computers' and 'Computers  '
-		$cats = array_map(
-			function($cat) {
-				return is_null($cat)
-					? null
-					: trim($cat);
-				},
-				$cats
-			);
+		$cats = array_map('trim', $cats);
 
 		$terms = array();
 		foreach ($taxonomies as $tax) :
@@ -1174,7 +1213,7 @@ class SyndicatedLink {
 		endforeach;
 
 		foreach ($cats as $cat_name) :
-			if (is_null($cat_name) || strlen(trim($cat_name)) < 1) :
+			if (strlen(trim($cat_name)) < 1) :
 				continue;
 			endif;
 
@@ -1183,7 +1222,7 @@ class SyndicatedLink {
 			if ($oTerm->is_familiar()) :
 
 				$tax = $oTerm->taxonomy();
-				if (!isset($terms[$tax])) :
+				if ( !isset($terms[$tax])) :
 					$terms[$tax] = array();
 				endif;
 				$terms[$tax][] = $oTerm->id();
@@ -1203,8 +1242,8 @@ class SyndicatedLink {
 					endif;
 
 					$inserted = $oTerm->insert($tax);
-					if (!is_null($inserted)) :
-						if (!isset($terms[$tax])) :
+					if ( !is_null($inserted)) :
+						if ( !isset($terms[$tax])) :
 							$terms[$tax] = array();
 						endif;
 						$terms[$tax][] = $inserted;
