@@ -1706,11 +1706,7 @@ class SyndicatedPost {
 				FeedWordPress::diagnostic('syndicated_posts', $diag);
 			endif;
 			
-			$post_id = $this->insert_post(/*update=*/ $this->fresh_content_is_update(), $this->freshness());
-
-            if ($post_id === false) {
-                return 'failed';
-            }
+			$this->insert_post(/*update=*/ $this->fresh_content_is_update(), $this->freshness());
 
 			$hook = $this->fresh_storage_hook();
 			if (!is_null($hook)) :
@@ -1817,12 +1813,7 @@ class SyndicatedPost {
 				// anchor the revision history.
 
 				$this->_wp_id = wp_insert_post($sdbpost, /*return wp_error=*/ true);
-
-                // If the post fails to insert mark as bad.
-                if (is_wp_error($this->_wp_id)) {
-                    return false;
-                }
-
+				
 				$dbpost['ID'] = $this->_wp_id;
 			endif;
 			

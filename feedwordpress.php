@@ -880,7 +880,7 @@ class FeedWordPress {
 			// If at least one feed was hit for updating...
 			if ($pinged_that and is_null($delta)) :
 				// ... don't return error condition
-				$delta = array('new' => 0, 'updated' => 0, 'stored' => 0, 'failed' => 0);
+				$delta = array('new' => 0, 'updated' => 0, 'stored' => 0);
 			endif;
 
 			if ($pinged_that and $timely) :
