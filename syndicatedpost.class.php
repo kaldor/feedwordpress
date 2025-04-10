@@ -909,7 +909,7 @@ class SyndicatedPost {
 	 */
 	function inline_tags () {
 		$tags = array();
-		$content = $this->content();
+		$content = $this->content() ?? '';
 		$pattern = FeedWordPressHTML::tagWithAttributeRegex('a', 'rel', 'tag');
 		preg_match_all($pattern, $content, $refs, PREG_SET_ORDER);
 		if (is_countable($refs) and count($refs) > 0) :
