@@ -102,7 +102,9 @@ class FeedWordPressCategoriesPage extends FeedWordPressAdminPage {
 			$labels = array(); $domain = array_filter($domain, 'remove_dummy_zero');
 			foreach ($domain as $tax) :
 				$tax = get_taxonomy($tax);
-				$labels[] = $tax->labels->name;
+				if (!is_null($tax)) {
+					$labels[] = $tax->labels->name;
+				}
 			endforeach;
 
 			if (count($labels) > 0) :

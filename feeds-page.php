@@ -373,11 +373,10 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 				if ( isset( $page->link->settings['update/timed'] ) and 'automatically' == $page->link->settings['update/timed'] ) :
 					esc_html_e( 'next: ');
 					$next = $page->link->settings['update/last'] + ( (int) $page->link->settings['update/ttl'] * 60 );
-					// Note: strftime() is deprecated; use date() instead. (gwyneth 20230918)
-					if ( strftime( '%x', time() ) != strftime( '%x', $next) ) :
-						echo esc_html( strftime( '%x', $next ) . ' ' );
+					if (date('Y-m-d', time()) != date('Y-m-d', $next)):
+						echo date('Y-m-d', $next)." ";
 					endif;
-					echo esc_html( strftime( '%X', $page->link->settings['update/last'] + ( (int) $page->link->settings['update/ttl'] * 60 ) ) );
+					echo date('H-i-s', $page->link->settings['update/last']+((int) $page->link->settings['update/ttl']*60));
 				else :
 					echo esc_html__( "every " ) . esc_html( $page->link->settings['update/ttl'] ) . esc_html__( " minute" )
 						. ( ( 1 != $page->link->settings['update/ttl'] ) ? esc_html__( "s" ) : "" );
