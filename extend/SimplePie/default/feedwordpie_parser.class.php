@@ -19,10 +19,17 @@ class FeedWordPie_Parser extends SimplePie_Parser {
 		$xml = xml_parser_create_ns($this->encoding, $this->separator);
 		xml_parser_set_option($xml, XML_OPTION_SKIP_WHITE, 1);
 		xml_parser_set_option($xml, XML_OPTION_CASE_FOLDING, 0);
-		xml_set_object($xml, $this);
-		xml_set_character_data_handler($xml, 'cdata');
-		xml_set_element_handler($xml, 'tag_open', 'tag_close');
-		xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+
+		if (PHP_VERSION_ID < 80400) {
+			xml_set_object($xml, $this);
+			xml_set_character_data_handler($xml, 'cdata');
+			xml_set_element_handler($xml, 'tag_open', 'tag_close');
+			xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+		} else {
+			xml_set_character_data_handler($xml, [$this, 'cdata']);
+			xml_set_element_handler($xml, [$this, 'tag_open'], [$this, 'tag_close']);
+			xml_set_start_namespace_decl_handler($xml, [$this, 'start_xmlns']);
+		}
 	}
 	
 	public function parse (&$data, $encoding, $url = '')
