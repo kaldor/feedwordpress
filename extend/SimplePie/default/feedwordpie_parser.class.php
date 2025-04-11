@@ -217,7 +217,11 @@ class FeedWordPie_Parser extends SimplePie_Parser {
 	} /* FeedWordPie_Parser::parse() */
 	
 	public function do_xml_parse_attempt ($xml, $data) {
-		xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+		if (PHP_VERSION_ID < 80400) {
+			xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+		} else {
+			xml_set_start_namespace_decl_handler($xml, [$this, 'start_xmlns']);
+		}
 
 		// Parse!
 		$parseResults = xml_parse($xml, $data, true);
