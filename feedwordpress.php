@@ -1465,11 +1465,16 @@ class FeedWordPress {
 	public function redirect_retired () {
 		global $wp_query;
 		if (is_singular()) :
+			$post = $wp_query->post;
+
 			if (
-				'fwpretired'==$wp_query->post->post_status
-				or 'fwpzapped'==$wp_query->post->post_status
+				!is_null($post)
+				&& (
+					'fwpretired'==$post->post_status
+					or 'fwpzapped'==$post->post_status
+				)
 			) :
-				do_action('feedwordpress_redirect_retired', $wp_query->post);
+				do_action('feedwordpress_redirect_retired', $post);
 
 				if ( !($template = get_404_template())) :
 					$template = get_index_template();
