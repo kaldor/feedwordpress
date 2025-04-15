@@ -1377,7 +1377,7 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 					$mn['key1'] = 'user/'.$mn['key1'];
 				endif;
 
-				if (strlen($mn['key0']) > 0) :
+				if (!is_null($mn['key0']) && strlen($mn['key0']) > 0) :
 					unset($this->link->settings[$mn['key0']]); // out with the old
 				endif;
 
