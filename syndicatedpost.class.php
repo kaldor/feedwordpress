@@ -1292,15 +1292,6 @@ class SyndicatedPost {
 					$live = ($updated and ($updated_ts > $last_rev_ts));
 				endif;
 
-				if ($updated) {
-					// This filter allows you to compare the old and the new post an reject and update for any reason.
-					$rejection_reason = apply_filters('syndicated_item_reject_update', false, $this->item, $old_post);
-					if ($rejection_reason) {
-						FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" rejection by syndicated_item_reject_update: ' . $rejection_reason);
-						$updated = false;
-					}
-				}
-
 				// This is a revision we haven't seen before, judging by the date.
 
 				$updatedReason = NULL;
@@ -1364,28 +1355,46 @@ class SyndicatedPost {
 				endif;
 				$live = ($live and ! $frozen);
 
+				$rejected = false;
 				if ($updated) :
-					FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is an update of an existing post.');
-					if ( !is_null($updatedReason)) :
-						$updatedReason = preg_replace('/\s+/', ' ', $updatedReason);
-						FeedWordPress::diagnostic('feed_items:freshness:reasons', 'Item ['.$guid.'] "'.$this->entry->get_title().'" '.$updatedReason);
+					// This filter allows you to reject an update for any reason,
+					// e.g. a custom content hash not changing or hitting an item update rate limit
+					$rejection_reason = apply_filters('syndicated_item_reject_update', false, $this->item, $old_post);
+					if ($rejection_reason) {
+						FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" rejection by syndicated_item_reject_update: ' . $rejection_reason);
+
+						// when rejected when otherwise would update, we want to not update hashes
+						// as potentially later when rate drops below the limit, we should process fully then
+						$this->_freshness = 0;
+						$this->_wp_id = $old_post->ID;
+						$rejected = true;
+					} 
+				endif;
+
+				if (!$rejected) :
+					if ($updated) :
+						FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is an update of an existing post.');
+						if ( !is_null($updatedReason)) :
+							$updatedReason = preg_replace('/\s+/', ' ', $updatedReason);
+							FeedWordPress::diagnostic('feed_items:freshness:reasons', 'Item ['.$guid.'] "'.$this->entry->get_title().'" '.$updatedReason);
+						endif;
+
+						$this->_freshness = apply_filters('syndicated_item_freshness', ($live ? 1 : -1), $updated, $frozen, $updated_ts, $last_rev_ts, $this);
+
+						$this->_wp_id = $old_post->ID;
+						$this->_wp_post = $old_post;
+
+						// We want this to keep a running list of all the
+						// processed update hashes.
+						$this->post['meta']['syndication_item_hash'] = array_merge(
+							$this->stored_hashes(),
+							array($this->update_hash())
+						);
+					else :
+						FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is a duplicate of an existing post.');
+						$this->_freshness = 0; // Same old, same old
+						$this->_wp_id = $old_post->ID;
 					endif;
-
-					$this->_freshness = apply_filters('syndicated_item_freshness', ($live ? 1 : -1), $updated, $frozen, $updated_ts, $last_rev_ts, $this);
-
-					$this->_wp_id = $old_post->ID;
-					$this->_wp_post = $old_post;
-
-					// We want this to keep a running list of all the
-					// processed update hashes.
-					$this->post['meta']['syndication_item_hash'] = array_merge(
-						$this->stored_hashes(),
-						array($this->update_hash())
-					);
-				else :
-					FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is a duplicate of an existing post.');
-					$this->_freshness = 0; // Same old, same old
-					$this->_wp_id = $old_post->ID;
 				endif;
 			endif;
 		endif;
