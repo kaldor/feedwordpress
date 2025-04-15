@@ -92,7 +92,7 @@ class FeedWordPressDiagnosticsPage extends FeedWordPressAdminPage {
 				delete_option( 'feedwordpress_diagnostics_persistent_errors_hours' );
 			endif;
 
-			if ( in_array( 'email', FeedWordPress::post( 'diagnostics_output' ) ) ) :
+			if ( in_array( 'email', FeedWordPress::post( 'diagnostics_output' ) ?? []) ) :
 				$ded = FeedWordPress::post('diagnostics_email_destination' );
 				if ( 'mailto' == $ded ) :
 					$ded .= ':' . FeedWordPress::post('diagnostics_email_destination_address' );
