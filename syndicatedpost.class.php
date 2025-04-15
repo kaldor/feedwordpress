@@ -1269,6 +1269,7 @@ class SyndicatedPost {
 				// something new.
 				$updated = false;
 				$live = false;
+				$forced = false;
 
 				// Pull the list of existing revisions to get
 				// timestamps.
@@ -1309,6 +1310,7 @@ class SyndicatedPost {
 					$updated = true;
 					$updatedReason = ' is being force updated';
 					$live = true;
+					$forced = true;
 
 				// The date does not indicate a new revision, so
 				// let's check the hash.
@@ -1356,7 +1358,7 @@ class SyndicatedPost {
 				$live = ($live and ! $frozen);
 
 				$rejected = false;
-				if ($updated) :
+				if ($updated && !$forced) : // we do not want to reject forced updates
 					// This filter allows you to reject an update for any reason,
 					// e.g. a custom content hash not changing or hitting an item update rate limit
 					$rejection_reason = apply_filters('syndicated_item_reject_update', false, $this->item, $old_post);
