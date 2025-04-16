@@ -2130,7 +2130,7 @@ EOM;
 			FeedWordPress::diagnostic('syndicated_posts:meta_data', 'Adding post meta-data: {'.implode(", ", array_keys($this->post['meta'])).'}');
 
 			if ( is_array($this->post) and isset($this->post['meta']) and is_array($this->post['meta']) ) :
-				$postId = $post->ID;
+				$postId = $post['ID'];
 
 				// Aggregated posts should NOT send out pingbacks.
 				// WordPress 2.1-2.2 claim you can tell them not to
