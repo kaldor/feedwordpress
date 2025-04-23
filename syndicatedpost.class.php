@@ -2166,9 +2166,14 @@ EOM;
 			FeedWordPress::diagnostic('syndicated_posts:meta_data', 'Adding post meta-data: {'.implode(", ", array_keys($this->post['meta'])).'}');
 
 			if ( is_array($this->post) and isset($this->post['meta']) and is_array($this->post['meta']) ) :
-				$postId = is_array($post)
-					? $post['ID']
-					: $post->ID;
+				if (!is_object($post) && function_exists('pugpig_error_log')) {
+					$e = new \Exception();
+					$trace_string = $e->getTraceAsString();
+					$this_post = $this->post;
+					pugpig_error_log("SyndicatedPost::add_rss_meta() called with non-post object", 'ERROR', compact('new_status', 'old_status', 'post', 'this_post', 'trace_string'));
+				}
+
+				$postId = $post->ID;
 
 				// Aggregated posts should NOT send out pingbacks.
 				// WordPress 2.1-2.2 claim you can tell them not to
