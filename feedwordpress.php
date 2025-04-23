@@ -2134,6 +2134,13 @@ class FeedWordPress {
 		global $feedwordpress_admin_footer;
 
 		$output = get_option( 'feedwordpress_diagnostics_output', array() );
+		if (is_string($output)) {
+			$output = [$output];
+		}
+		if (!is_array($output)) {
+			$output = [];
+		}
+
 		$dlog   = get_option( 'feedwordpress_diagnostics_log', array() );
 
 		$diagnostic_nesting = count( explode( ":", $level ) );
