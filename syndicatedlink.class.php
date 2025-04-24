@@ -1207,7 +1207,7 @@ public function authentication_method() {
 		// <http://dev.mysql.com/doc/mysql/en/char.html>), and (2)
 		// because I doubt most people want to make a semantic
 		// distinction between 'Computers' and 'Computers  '
-		$cats = array_map('trim', $cats);
+		$cats = array_map('trim', array_filter($cats));
 
 		$terms = array();
 		foreach ($taxonomies as $tax) :
