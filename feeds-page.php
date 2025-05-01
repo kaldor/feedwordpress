@@ -1500,7 +1500,7 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 
 		$link_rss_password = FeedWordPress::post( 'link_rss_password' );
 		if (
-			strlen( $link_rss_password ) == 0
+			strlen( $link_rss_password ?? '' ) == 0
 			|| is_null( $link_rss_auth_method )
 		) :
 			$link_rss_password = null;
