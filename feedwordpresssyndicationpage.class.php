@@ -1277,7 +1277,14 @@ regular donation' ); ?></a><?php esc_html_e( ' using an existing PayPal account 
 				$feed       = FeedWordPress::post( 'feed' );
 
 				$link_id = FeedWordPress::syndicate_link( $feed_title, $feed_link, $feed );
-				if ($link_id):
+				if (is_wp_error($link_id)):
+					?>
+						<div class="error">
+							<p><?php esc_html_e( $link_id->get_error_message() ); ?></p>
+							<pre><?php esc_html_e( $link_id->get_error_data() ); ?></pre>
+						</div>
+					<?php
+				elseif ($link_id):
 					$existingLink = new SyndicatedLink($link_id);
 					$adminPageHref = $this->admin_page_href( 'feeds-page.php', array( "link_id" => $link_id ) );
 					?>
