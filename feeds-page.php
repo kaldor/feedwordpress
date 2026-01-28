@@ -545,7 +545,7 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 	 * @param  array $params      Unused.
 	 */
 	function fetch_timeout_setting_value( $setting, $defaulted, $params ) {
-		print number_format( intval( $setting) ) . " " . ( ( 1 == $setting ) ? "second" : "seconds" );
+		return number_format( intval( $setting) ) . " " . ( ( 1 == $setting ) ? "second" : "seconds" );
 	}
 
 	/**
