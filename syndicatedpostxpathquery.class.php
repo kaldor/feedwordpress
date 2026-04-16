@@ -331,9 +331,9 @@ class SyndicatedPostXPathQuery {
 		foreach ($data as $idx => $datum) :
 			if ($r['format'] == 'string') :
 				if (is_string($datum)) :
-					$matches[] = $datum;
+					$matches[] = $this->decode_matched_string($datum);
 				elseif (isset($datum['data'])) :
-					$matches[] = $datum['data'];
+					$matches[] = $this->decode_matched_string($datum['data']);
 				endif;
 			else :
 				$matches[$idx] = $datum;
@@ -342,6 +342,14 @@ class SyndicatedPostXPathQuery {
 
 		return $matches;
 	} /* SyndicatedPostXPathQuery::match() */
+
+	protected function decode_matched_string($value) {
+		if (!is_string($value) || strpos($value, '&') === false) :
+			return $value;
+		endif;
+
+		return html_entity_decode($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
+	} /* SyndicatedPostXPathQuery::decode_matched_string() */
 
 	public function xpath_default_namespace () {
 		// Get the default namespace.
