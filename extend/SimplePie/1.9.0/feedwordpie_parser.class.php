@@ -15,17 +15,12 @@ class FeedWordPie_Parser extends SimplePie_Parser {
         $this->xmlns_stack = array();
         $this->xmlns_current = array();
 
-        if (is_resource($xml)) {
-            xml_parser_free($xml);
-        }
-
         $xml = xml_parser_create_ns($this->encoding, $this->separator);
         xml_parser_set_option($xml, XML_OPTION_SKIP_WHITE, 1);
         xml_parser_set_option($xml, XML_OPTION_CASE_FOLDING, 0);
-        xml_set_object($xml, $this);
-        xml_set_character_data_handler($xml, 'cdata');
-        xml_set_element_handler($xml, 'tag_open', 'tag_close');
-        xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+        xml_set_character_data_handler($xml, array($this, 'cdata'));
+        xml_set_element_handler($xml, array($this, 'tag_open'), array($this, 'tag_close'));
+        xml_set_start_namespace_decl_handler($xml, array($this, 'start_xmlns'));
     }
 
     public function parse(string &$data, string $encoding, string $url = '') {
@@ -57,10 +52,9 @@ class FeedWordPie_Parser extends SimplePie_Parser {
         $xml = xml_parser_create_ns($this->encoding, $this->separator);
         xml_parser_set_option($xml, XML_OPTION_SKIP_WHITE, 1);
         xml_parser_set_option($xml, XML_OPTION_CASE_FOLDING, 0);
-        xml_set_object($xml, $this);
-        xml_set_character_data_handler($xml, 'cdata');
-        xml_set_element_handler($xml, 'tag_open', 'tag_close');
-        xml_set_start_namespace_decl_handler($xml, 'start_xmlns');
+        xml_set_character_data_handler($xml, array($this, 'cdata'));
+        xml_set_element_handler($xml, array($this, 'tag_open'), array($this, 'tag_close'));
+        xml_set_start_namespace_decl_handler($xml, array($this, 'start_xmlns'));
 
         $results = $this->do_xml_parse_attempt($xml, $data);
         $parseResults = $results[0];
@@ -68,16 +62,14 @@ class FeedWordPie_Parser extends SimplePie_Parser {
         if (!$parseResults) {
             $this->error_code = xml_get_error_code($xml);
             $this->error_string = xml_error_string($this->error_code);
-            xml_parser_free($xml);
             return false;
         }
 
-        xml_parser_free($xml);
         return true;
     }
 
     public function do_xml_parse_attempt($xml, $data) {
-        xml_set_start_namespace_decl_handler( $xml, 'start_xmlns' );
+        xml_set_start_namespace_decl_handler( $xml, array($this, 'start_xmlns') );
 
         // Parse!
         $parseResults = xml_parse( $xml, $data, true );
