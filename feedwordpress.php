@@ -754,7 +754,7 @@ class FeedWordPress {
 			$which = $this->feedurls[$which];
 		endif;
 
-		if (isset($this->feeds[$which])) :
+		if (!is_null($which) && isset($this->feeds[$which])) :
 			$sub = $this->feeds[$which];
 		endif;
 
