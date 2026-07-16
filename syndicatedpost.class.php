@@ -1196,6 +1196,11 @@ class SyndicatedPost {
 	static function sanitize_content ($content, $obj) {
 		# This kind of sucks. I intend to replace it with
 		# lib_filter sometime soon.
+
+		if (is_null($content)) {
+			return $content;
+		}
+
 		foreach ($obj->strip_attrs as $pair):
 			list($tag,$attr) = $pair;
 			$pattern = FeedWordPressHTML::attributeRegex($tag, $attr);
