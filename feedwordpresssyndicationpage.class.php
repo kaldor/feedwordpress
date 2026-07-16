@@ -557,7 +557,7 @@ class FeedWordPressSyndicationPage extends FeedWordPressAdminPage
 		);
 
 		$act = FeedWordPress::param( 'action' );
-		if ( isset( $dispatcher[ $act ] ) ) :
+		if ( !is_null($act) && isset( $dispatcher[ $act ] ) ) :
 			$method = $dispatcher[ $act ];
 			if ( method_exists( $this, $method ) ) :
 				$cont = $this->{$method}();
