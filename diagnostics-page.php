@@ -449,7 +449,9 @@ function clone_http_test_args_keyvalue_prototype () {
 			switch ( $method ) :
 			case 'wp_remote_request' :
 				$out = wp_remote_request($url, $args);
-				unset( $out[ 'http_response' ] );
+				if (!is_wp_error($out)) {
+					unset( $out[ 'http_response' ] );
+				}
 				break;
 			case 'FeedWordPie_File' :
 				$out = new FeedWordPie_File($url);
