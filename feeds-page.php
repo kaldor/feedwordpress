@@ -326,11 +326,11 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 		$shellExecAvailable = ( is_callable( 'shell_exec' ) && false === stripos( ini_get( 'disable_functions' ), 'shell_exec') );
 
 		if ( $shellExecAvailable ) :
-			$curlOrWgetPath = `which curl`; $opts = '--silent %s';
+			$curlOrWgetPath = exec_shell('which curl'); $opts = '--silent %s';
 		endif;
 
 		if ( $shellExecAvailable and ( is_null( $curlOrWgetPath ) or strlen( trim( $curlOrWgetPath ) ) == 0 ) ) :
-			$curlOrWgetPath = `which wget`; $opts = '-q -O - %s';
+			$curlOrWgetPath = exec_shell('which wget'); $opts = '-q -O - %s';
 		endif;
 
 		if ( is_null( $curlOrWgetPath ) or strlen( trim( $curlOrWgetPath ) ) == 0 ) :
