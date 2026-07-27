@@ -1321,7 +1321,7 @@ class SyndicatedPost {
 						// live. If an older one, just record
 						// the contents.
 						$live = ($updated_ts > $last_rev_ts);
-					endif:
+					endif;
 
 				// There is no date, so let's check the hash.
 				else :
