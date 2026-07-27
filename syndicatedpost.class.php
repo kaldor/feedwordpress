@@ -1273,12 +1273,23 @@ class SyndicatedPost {
 				FeedWordPress::diagnostic('feed_items:freshness', 'Item ['.$guid.'] "'.$this->entry->get_title().'" is a NEW POST.');
 				$this->_wp_id = NULL;
 				$this->_freshness = 2; // New content
+
+			elseif (apply_filters('syndicated_item_force_update', false, $this->item, $old_post)) :
+				$this->_wp_id = $old_post->ID;
+				$this->_wp_post = $old_post;
+				$this->_freshness = 1;
+
+				// Keep the hash in case it changed
+				$this->post['meta']['syndication_item_hash'] = array_merge(
+					$this->stored_hashes(),
+					array($this->update_hash())
+				);
+
 			else :
 				// Presume there is nothing new until we find
 				// something new.
 				$updated = false;
 				$live = false;
-				$forced = false;
 
 				// Pull the list of existing revisions to get
 				// timestamps.
@@ -1314,12 +1325,6 @@ class SyndicatedPost {
 						.date('Y-m-d H:i:s', $last_rev_ts)
 						.')'
 					);
-
-				elseif (apply_filters('syndicated_item_force_update', false, $this->item, $old_post)) :
-					$updated = true;
-					$updatedReason = ' is being force updated';
-					$live = true;
-					$forced = true;
 
 				// The date does not indicate a new revision, so
 				// let's check the hash.
@@ -1367,7 +1372,7 @@ class SyndicatedPost {
 				$live = ($live and ! $frozen);
 
 				$rejected = false;
-				if ($updated && !$forced) : // we do not want to reject forced updates
+				if ($updated) :
 					// This filter allows you to reject an update for any reason,
 					// e.g. a custom content hash not changing or hitting an item update rate limit
 					$rejection_reason = apply_filters('syndicated_item_reject_update', false, $this->item, $old_post);
