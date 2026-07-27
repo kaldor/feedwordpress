@@ -1289,6 +1289,7 @@ class SyndicatedPost {
 				// Presume there is nothing new until we find
 				// something new.
 				$updated = false;
+				$updatedReason = NULL;
 				$live = false;
 
 				// Pull the list of existing revisions to get
@@ -1307,29 +1308,23 @@ class SyndicatedPost {
 				if ( !is_null($updated_ts)) :
 					$updated = !in_array($updated_ts, $revisions_ts);
 
-					// If this a newer revision, make it go
-					// live. If an older one, just record
-					// the contents.
-					$live = ($updated and ($updated_ts > $last_rev_ts));
-				endif;
+					if ($updated) :
+						$updatedReason = preg_replace(
+							"/\s+/", " ",
+							'has been marked with a new timestamp ('
+							.date('Y-m-d H:i:s', $updated_ts)
+							." > "
+							.date('Y-m-d H:i:s', $last_rev_ts)
+							.')'
+						);
+						// If this a newer revision, make it go
+						// live. If an older one, just record
+						// the contents.
+						$live = ($updated_ts > $last_rev_ts);
+					endif:
 
-				// This is a revision we haven't seen before, judging by the date.
-
-				$updatedReason = NULL;
-				if ($updated) :
-					$updatedReason = preg_replace(
-						"/\s+/", " ",
-						'has been marked with a new timestamp ('
-						.date('Y-m-d H:i:s', $updated_ts)
-						." > "
-						.date('Y-m-d H:i:s', $last_rev_ts)
-						.')'
-					);
-
-				// The date does not indicate a new revision, so
-				// let's check the hash.
+				// There is no date, so let's check the hash.
 				else :
-					// Or the hash...
 					$hash = $this->update_hash();
 					$seen = $this->stored_hashes($old_post->ID);
 					if (is_countable($seen) and count($seen) > 0) :
