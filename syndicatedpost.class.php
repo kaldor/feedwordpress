@@ -1909,6 +1909,21 @@ class SyndicatedPost {
 	function normalize_post( $new = true ) {
 		$out = $this->post;
 
+		// WordPress string sanitizers expect post text fields to be strings.
+		// Feed parsers and syndicated_post filters may return NULL for fields
+		// such as an absent title, so normalize those values before handing the
+		// post to wp_insert_post().
+		foreach ( array(
+			'post_title',
+			'post_content',
+			'post_excerpt',
+			'post_content_filtered',
+		) as $field ) :
+			if ( !isset($out[$field]) or is_null($out[$field]) ) :
+				$out[$field] = '';
+			endif;
+		endforeach;
+
 		$fullPost = $out['post_title'].$out['post_content'];
 		$fullPost .= (isset($out['post_excerpt']) ? $out['post_excerpt'] : '');
 		if (strlen($fullPost) < 1) :
