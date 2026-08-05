@@ -1403,7 +1403,7 @@ function fwp_dashboard_update_if_requested ($object) {
 		echo "</ul>\n";
 
 		if ( !is_null($tdelta)) :
-			echo '<p><strong>'; esc_html_e( 'Update complete.' ); echo '</strong>'; print esc_html( fwp_update_set_results_message($delta) ); print '</p>';
+			echo '<p><strong>'; esc_html_e( 'Update complete.' ); echo '</strong>'; print esc_html( fwp_update_set_results_message($tdelta) ); print '</p>';
 			echo "\n"; flush();
 		endif;
 		echo "</div> <!-- class=\"updated\" -->\n";
